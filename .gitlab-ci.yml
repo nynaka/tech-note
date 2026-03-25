@@ -1,0 +1,11 @@
+image: node:24
+pages:
+  stage: deploy
+  script:
+    - npm install
+    - npm run build -- --out-dir public
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
