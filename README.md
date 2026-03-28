@@ -10,7 +10,10 @@ This website is built using [Docusaurus](https://docusaurus.io/), a modern stati
 1. Docusaurus のインストール
 
     ```bash
-    npm install @docusaurus/core@latest @docusaurus/preset-classic@latest
+    npm install \
+        @docusaurus/core@latest \
+        @docusaurus/preset-classic@latest \
+        @docusaurus/theme-mermaid
     ```
 
 2. Docusaurus の起動
