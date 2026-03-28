@@ -9,5 +9,5 @@ sidebar_position: 0
 Tech Note
 ===
 
-
-aaa
+過去に調べた IT 系の技術メモです。  
+気ままに追加・更新しています。  
