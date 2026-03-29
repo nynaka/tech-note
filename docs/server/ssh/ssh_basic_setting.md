@@ -9,8 +9,10 @@ sidebar_position: 0
 SSH 基本設定
 ===
 
+
 ## インストール
 
+<details>
 ### Debian / Ubuntu
 
 ```bash title="SSH サーバ・クライアントのインストール"
@@ -38,12 +40,14 @@ sudo systemctl start sshd
 # SSH サーバの自動起動
 sudo systemctl enable sshd
 ```
+</details>
 
 ## 設定
 
 ### パスワード認証
 
-デフォルトで Linux アカウントの ID／パスワードを使用した認証が有効になっています。
+デフォルトで Linux アカウントの ID／パスワードを使用した認証が有効になっています。  
+**/etc/ssh/sshd_config** で **PasswordAuthentication** に **no** を設定すれば、パスワード認証を無効にできます。
 
 ### 公開鍵認証
 

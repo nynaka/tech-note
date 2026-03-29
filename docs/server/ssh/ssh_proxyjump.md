@@ -9,6 +9,18 @@ sidebar_position: 1
 SSH ProxyJump / ProxyCommand
 ===
 
+## SSH Proxy の特徴
+
+SSH Proxy は、踏み台サーバ（プロキシサーバ）を経由して接続先サーバへ SSH 接続する仕組みです。  
+クライアントは踏み台サーバを中継点として利用し、直接到達できないネットワーク上のサーバへ透過的にアクセスできます。
+
+主な特徴
+- セキュリティ向上 — 接続先サーバをインターネットに直接公開せず、踏み台サーバ経由のみでアクセスを制限できる
+- 透過的な接続 — クライアントから見ると踏み台サーバを意識せず、接続先サーバに直接 SSH しているように操作できる
+- 多段接続 — 踏み台サーバを複数経由する多段構成も設定ファイルで柔軟に組める
+- SSH 機能との併用 — ポートフォワードや SCP など、SSH の各機能も踏み台経由でそのまま利用できる
+- 認証の一元管理 — 踏み台サーバを認証の入口とすることで、アクセス制御を一か所に集約できる
+
 ## 構成図
 
 ```mermaid
@@ -23,7 +35,7 @@ graph LR
 
 ## ProxyCommand を使う方法
 
-踏み台サーバを経由して接続先サーバへ SSH 接続します。
+OpenSSH 7.2 以前で利用できる古い記法です。
 
 ```bash title="ProxyCommand でのSSH接続"
 ssh -o ProxyCommand="ssh -W %h:%p user@bastion.example.com" user@target.example.com
@@ -43,11 +55,11 @@ ssh -J user@bastion.example.com user@target.example.com
 ssh -J user@bastion1.example.com,user@bastion2.example.com user@target.example.com
 ```
 
-## ~/.ssh/config を使う方法
+## $HOME/.ssh/config を使う方法
 
-`~/.ssh/config` に設定を記述することでコマンドを簡略化できます。
+$HOME/.ssh/config に設定を記述することでコマンドを簡略化できます。
 
-```config title="~/.ssh/config"
+```config title="$HOME/.ssh/config"
 # 踏み台サーバ
 Host bastion
     HostName bastion.example.com
