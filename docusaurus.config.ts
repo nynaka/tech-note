@@ -42,6 +42,20 @@ const config: Config = {
         docs: {
           routeBasePath: "/",
           sidebarPath: './sidebars.ts',
+          async sidebarItemsGenerator({ defaultSidebarItemsGenerator, ...args }) {
+            const items = await defaultSidebarItemsGenerator(args);
+            const sortItems = (items: any[]): any[] =>
+              items
+                .sort((a: any, b: any) =>
+                  (a.label ?? a.id ?? '').localeCompare(b.label ?? b.id ?? '')
+                )
+                .map((item: any) =>
+                  item.type === 'category'
+                    ? { ...item, items: sortItems(item.items) }
+                    : item
+                );
+            return sortItems(items);
+          },
           //// Please change this to your repo.
           //// Remove this to remove the "edit this page" links.
           //editUrl:
