@@ -35,6 +35,18 @@ const config: Config = {
     locales: ['en'],
   },
 
+  plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'draft',
+        path: 'draft',
+        routeBasePath: 'draft',
+        sidebarPath: './sidebars.ts',
+      },
+    ],
+  ],
+
   presets: [
     [
       'classic',
@@ -46,9 +58,11 @@ const config: Config = {
             const items = await defaultSidebarItemsGenerator(args);
             const sortItems = (items: any[]): any[] =>
               items
-                .sort((a: any, b: any) =>
-                  (a.label ?? a.id ?? '').localeCompare(b.label ?? b.id ?? '')
-                )
+                .sort((a: any, b: any) => {
+                  if (a.id === 'index') return -1;
+                  if (b.id === 'index') return 1;
+                  return (a.label ?? a.id ?? '').localeCompare(b.label ?? b.id ?? '');
+                })
                 .map((item: any) =>
                   item.type === 'category'
                     ? { ...item, items: sortItems(item.items) }
@@ -102,6 +116,13 @@ const config: Config = {
         src: 'img/logo.svg',
       },
       items: [
+        {
+          type: 'docSidebar',
+          sidebarId: 'draftSidebar',
+          docsPluginId: 'draft',
+          position: 'left',
+          label: '下書き',
+        },
         //{
         //  type: 'docSidebar',
         //  sidebarId: 'tutorialSidebar',
