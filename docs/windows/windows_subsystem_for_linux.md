@@ -131,7 +131,7 @@ Hyper-V をインストールすると別の方法もあるのですが、ここ
 
     プロンプトが **DISKPART>** になる、もしくは、別のコマンドプロンプトが起動します。
 
-4. `diskpart` 内で以下のコマンドを順に実行する
+4. **diskpart** 内で以下のコマンドを順に実行する
 
     ```
     select vdisk file="C:\Users\<ユーザ名>\AppData\Local\wsl\{8b2a7f73-ae66-4f09-b25a-d9694be2558b}\ext4.vhdx"
