@@ -1,12 +1,12 @@
 ---
-title: openssl コマンドの署名
+title: openssl コマンドの署名・署名検証実行例
 description: openssl コマンドを使用したデジタル署名の実行例です。
 #sidebar_position: 0
 #id: home
 #slug: /my-custom-url
 ---
 
-openssl コマンドの署名
+openssl コマンドの署名・署名検証実行例
 ===
 
 ## 動作環境
@@ -559,29 +559,6 @@ openssl pkeyutl -verify \
 
 **出力（検証成功時）:** Signature Verified Successfully
 
-
----
-
-## アルゴリズム比較
-
-### 動作確認結果サマリー
-
-| アルゴリズム      | 直接署名コマンド                          | ダイジェスト署名                                                | 署名サイズ    | 検証結果                                      |
-| ----------------- | ----------------------------------------- | --------------------------------------------------------------- | ------------- | --------------------------------------------- |
-| RSA PKCS#1 v1.5   | dgst -sha256 -sign                        | ✅ pkeyutl -pkeyopt digest:sha256                               | 256 バイト    | Verified OK                                   |
-| RSA-PSS           | dgst -sha256 -sigopt rsa_padding_mode:pss | ✅ pkeyutl -pkeyopt digest:sha256 -pkeyopt rsa_padding_mode:pss | 256 バイト    | Verified OK                                   |
-| ECDSA             | dgst -sha256 -sign                        | ✅ pkeyutl -pkeyopt digest:sha256                               | 70〜72 バイト | Verified OK / Signature Verified Successfully |
-| EdDSA (Ed25519)   | pkeyutl -sign                             | ❌ 不可（PureEdDSA）                                            | 64 バイト     | Signature Verified Successfully               |
-| ML-DSA-65         | pkeyutl -sign                             | ❌ 不可（HashML-DSA はCLI非対応）                               | 3309 バイト   | Signature Verified Successfully               |
-| SLH-DSA-SHA2-128s | pkeyutl -sign                             | ❌ 不可（HashSLH-DSA はCLI非対応）                              | 7856 バイト   | Signature Verified Successfully               |
-
-### コマンド体系
-
-| 方式                     | 署名/検証コマンド | ダイジェスト署名                       | 備考                                       |
-| ------------------------ | ----------------- | -------------------------------------- | ------------------------------------------ |
-| RSA PKCS, RSA-PSS, ECDSA | openssl dgst      | ✅ openssl pkeyutl -pkeyopt digest:XXX | -sha256 などハッシュ指定が必要             |
-| EdDSA, ML-DSA, SLH-DSA   | openssl pkeyutl   | ❌ 仕様上不可                          | ハッシュ指定不要（アルゴリズム内部で処理） |
-
 ---
 
 ## 署名ファイルの検査
@@ -613,38 +590,9 @@ wc -c *_digest.bin
 
 ---
 
-## セキュリティに関する注意事項
-
-1. **秘密鍵の保護**: 秘密鍵ファイル (*_private.pem) は適切なパーミション（600）で管理し、外部に公開しないでください。
-
-    ```bash
-    chmod 600 *_private.pem
-    ```
-
-2. **鍵長の選択**: RSA は最小 2048 bit、推奨 3072 bit 以上を使用してください。2048 bit は 2030 年頃まで有効と見込まれています。
-
-3. **ハッシュアルゴリズムの選択**: SHA-1 は署名用途では非推奨です（衝突攻撃が実証済み）。SHA-256 以上を使用してください。
-
-4. **耐量子暗号への移行**: 量子コンピュータの実用化に備え、長期保護が必要なシステムでは ML-DSA または SLH-DSA への移行を検討してください。
-
-5. **アルゴリズム選択指針**:
-
-    | 用途                        | 推奨アルゴリズム                       |
-    | --------------------------- | -------------------------------------- |
-    | 短期利用 (〜2030年)         | ECDSA P-256 / EdDSA Ed25519            |
-    | 中長期利用 (2030年以降)     | ECDSA P-384 / RSA 3072bit以上          |
-    | 耐量子要件 (バランス型)     | ML-DSA-65                              |
-    | 耐量子要件 (保守的・高保証) | SLH-DSA-SHA2-128s (または 192s / 256s) |
-
-6. **テスト環境と本番環境の分離**: 本ドキュメントのコマンド例はデモ用です。本番環境では HSM (ハードウェアセキュリティモジュール) や適切な鍵管理基盤の利用を検討してください。
-
----
-
 ## 参考情報
 
 - [NIST FIPS 186-5 (DSA/ECDSA/EdDSA)](https://csrc.nist.gov/publications/detail/fips/186/5/final)
-- [NIST FIPS 204 (ML-DSA)](https://csrc.nist.gov/publications/detail/fips/204/final)
-- [NIST FIPS 205 (SLH-DSA)](https://csrc.nist.gov/publications/detail/fips/205/final)
 - [RFC 8032 (EdDSA: Ed25519, Ed448)](https://www.rfc-editor.org/rfc/rfc8032)
 - [OpenSSL man pages (3.x)](https://www.openssl.org/docs/man3.5/)
 - [OpenSSL genpkey(1)](https://www.openssl.org/docs/man3.5/man1/openssl-genpkey.html)
