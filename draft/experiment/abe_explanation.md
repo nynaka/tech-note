@@ -1,7 +1,6 @@
 ---
 title: 属性ベース暗号
 description: 属性ベース暗号 (Attribute-Based Encryption; ABE) の概要説明です。
-draft: true
 #sidebar_position: 0
 #id: home
 #slug: /my-custom-url
