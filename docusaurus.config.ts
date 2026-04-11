@@ -43,6 +43,26 @@ const config: Config = {
         path: 'draft',
         routeBasePath: 'draft',
         sidebarPath: './sidebars.ts',
+        async sidebarItemsGenerator({ defaultSidebarItemsGenerator, ...args }) {
+          const items = await defaultSidebarItemsGenerator(args);
+          const sortItems = (items: any[]): any[] =>
+            items
+              .sort((a: any, b: any) => {
+                if (a.id === 'index') return -1;
+                if (b.id === 'index') return 1;
+                const aIsCategory = a.type === 'category';
+                const bIsCategory = b.type === 'category';
+                if (aIsCategory && !bIsCategory) return -1;
+                if (!aIsCategory && bIsCategory) return 1;
+                return (a.label ?? a.id ?? '').localeCompare(b.label ?? b.id ?? '');
+              })
+              .map((item: any) =>
+                item.type === 'category'
+                  ? { ...item, items: sortItems(item.items) }
+                  : item
+              );
+          return sortItems(items);
+        },
       },
     ],
   ],
@@ -61,6 +81,12 @@ const config: Config = {
                 .sort((a: any, b: any) => {
                   if (a.id === 'index') return -1;
                   if (b.id === 'index') return 1;
+                  // カテゴリ（子階層あり）を先に、ファイル（ページ）を後に
+                  const aIsCategory = a.type === 'category';
+                  const bIsCategory = b.type === 'category';
+                  if (aIsCategory && !bIsCategory) return -1;
+                  if (!aIsCategory && bIsCategory) return 1;
+                  // 同種はアルファベット順
                   return (a.label ?? a.id ?? '').localeCompare(b.label ?? b.id ?? '');
                 })
                 .map((item: any) =>
