@@ -1,6 +1,6 @@
 ---
 title: Gemini CLI
-description: Gemini CLI のインストールに関する手順んです。
+description: Gemini CLI のインストールに関する手順です。
 #sidebar_position: 0
 #id: home
 #slug: /my-custom-url
