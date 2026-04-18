@@ -23,33 +23,80 @@ echo "net.ipv4.ip_forward=1" \
 
 ## IP Masquerade (NAPT)
 
-### iptables のインストール
+### ufw のインストール
 
 ```bash title="Debian / Ubuntu 系"
-sudo apt install -y iptables iptables-persistent
+sudo apt install -y ufw
 ```
 
-### 最小設定
+### フォワーディングポリシーの変更
 
-wlp1s0 は無線 LAN インタフェースで、インターネット側のインタフェースです。  
-有線 LAN 等の他のインタフェースから受信したトラフィックを wlp1s0 に中継する設定です。
+ufw のデフォルトではパケット転送が拒否されているため、`ACCEPT` に変更します。
+
+```diff title="/etc/default/ufw"
+-DEFAULT_FORWARD_POLICY="DROP"
++DEFAULT_FORWARD_POLICY="ACCEPT"
+```
+
+### NAT ルールの追加
+
+`/etc/ufw/before.rules` の先頭（`*filter` セクションより前）に NAT テーブルのルールを追加します。  
+`wlp1s0` はインターネット側（WAN 側）のインタフェース名です。環境に合わせて変更してください。
+
+```diff title="/etc/ufw/before.rules"
++# NAT table rules
++*nat
++:POSTROUTING ACCEPT [0:0]
++
++# Masquerade traffic going out via wlp1s0 (WAN interface)
++-A POSTROUTING -o wlp1s0 -j MASQUERADE
++
++COMMIT
++
+ # Don't delete these required lines, otherwise there will be errors
+ *filter
+```
+
+### LAN 側からのトラフィックを許可
 
 ```bash
-# 既存設定の初期化
-sudo iptables -F
-sudo iptables -F -t nat
-sudo iptables -X
-
-# Deafult Rule
-sudo iptables -P INPUT   ACCEPT
-sudo iptables -P OUTPUT  ACCEPT
-sudo iptables -P FORWARD ACCEPT
-
-sudo iptables -t nat -A POSTROUTING -o wlp1s0 -j MASQUERADE
+# LAN 側インタフェース (enp3s0) からのトラフィックを許可
+sudo ufw allow in on enp3s0 from 192.168.1.0/24
 ```
 
-```bash title="iptables 設定の永続化"
-sudo /etc/init.d/netfilter-persistent save
+### SSH の通信許可
+
+```bash
+# SSH
+sudo ufw allow in on enp3s0 from 192.168.1.0/24 to any port 22 proto tcp
+```
+
+### mDNS (Avahi) (オプション)
+
+mDNS はマルチキャスト UDP パケット（宛先 `224.0.0.251:5353`）を使用します。  
+ufw の `allow` ルールはユニキャストにのみ適用されるため、`/etc/ufw/before.rules` に直接ルールを追記します。
+
+```diff title="/etc/ufw/before.rules"
+ # allow all on loopback
+ -A ufw-before-input -i lo -j ACCEPT
+ -A ufw-before-output -o lo -j ACCEPT
++
++# allow mDNS (multicast DNS) on LAN interface
++-A ufw-before-input -i enp3s0 -p udp -d 224.0.0.251 --dport 5353 -j ACCEPT
+```
+
+### Samba (オプション)
+
+```bash
+# Samba (NetBIOS + SMB)
+sudo ufw allow in on enp3s0 from 192.168.1.0/24 to any app Samba
+```
+
+### ufw の有効化
+
+```bash
+sudo ufw enable
+sudo ufw status verbose
 ```
 
 ---
