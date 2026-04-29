@@ -1,10 +1,21 @@
-# フェーズ2：Kubernetesの基本リソース操作（実技手順）
+---
+title: Kubernetes の基本リソース操作
+description: Pod、Deployment、Service、Namespace などの Kubernetes の基本リソース操作と宣言的管理の操作を行います
+#sidebar_position: 0
+#id: home
+#slug: /my-custom-url
+---
 
-このフェーズでは、Kubernetesの基本リソースを操作し、宣言的管理の仕組みを理解します。試験の配点が最も高い「Kubernetes基礎（44%）」と「コンテナオーケストレーション（28%）」に対応します。
+Kubernetesの基本リソース操作
+===
 
-## 2-1. Podの基本操作
+このフェーズでは、Kubernetesの基本リソースを操作し、宣言的管理の仕組みを理解します。  
+試験の配点が最も高い「Kubernetes基礎（44%）」と「コンテナオーケストレーション（28%）」に対応します。
 
-### Podの実行（命令的 vs 宣言的）
+## Pod の基本操作
+
+### Pod の実行 (命令的 vs 宣言的)
+
 ```bash
 # 命令的 (Imperative): コマンドで直接実行
 kubectl run nginx-pod --image=nginx:alpine
@@ -46,7 +57,8 @@ EOF
 kubectl apply -f pod.yaml
 ```
 
-### 状態確認とトラブルシューティング
+### Pod の状態確認とトラブルシューティング
+
 ```bash
 # Pod一覧の表示
 kubectl get pods
@@ -69,9 +81,9 @@ kubectl exec -it nginx-pod-manifest -- sh
 
 ---
 
-## 2-2. Deploymentによるワークロード管理
+## Deployment によるワークロード管理
 
-DeploymentはReplicaSetを介してPodのレプリカ数やアップデートを管理します。
+Deployment は ReplicaSet を介して Pod のレプリカ数やアップデートを管理します。
 
 ```mermaid
 graph TD
@@ -81,7 +93,8 @@ graph TD
     RS --> Pod3[Pod]
 ```
 
-### Deploymentの作成とスケーリング
+### Deployment の作成とスケーリング
+
 ```bash
 cat <<EOF > deployment.yaml
 apiVersion: apps/v1
@@ -114,7 +127,8 @@ kubectl scale deployment web-deploy --replicas=5
 ```
 
 ### Self-healing の確認
-Deploymentが管理するPodは、意図せず削除されても自動的に再作成されます。
+
+Deployment が管理する Pod は、意図せず削除されても自動的に再作成されます。
 
 ```bash
 # Podを1つ強制削除
@@ -125,6 +139,7 @@ kubectl get pods -l app=web --watch
 ```
 
 ### ローリングアップデートとロールバック
+
 ```bash
 # イメージの更新 (v1.25 -> v1.26)
 kubectl set image deployment/web-deploy nginx=nginx:1.26
@@ -141,7 +156,7 @@ kubectl rollout undo deployment/web-deploy
 
 ---
 
-## 2-3. 用途別ワークロードリソース
+## 用途別ワークロードリソース
 
 Deploymentの他にも、目的に応じた複数のワークロードリソースがあります。
 
@@ -190,7 +205,10 @@ kubectl get pvc
 ```
 
 ### DaemonSet
-クラスタの全Node（または指定条件を満たすNode）に1つずつPodを配置します。新しいNodeが追加されると自動でPodが起動します。ログ収集エージェントやノード監視エージェントに使用します。
+
+クラスタの全 Node (または指定条件を満たすNode) に1つずつPodを配置します。  
+新しい Node が追加されると自動で Pod が起動します。  
+ログ収集エージェントやノード監視エージェントに使用します。
 
 ```bash
 cat <<EOF > daemonset.yaml
@@ -219,7 +237,10 @@ kubectl get pods -l app=log-agent -o wide
 ```
 
 ### Job
-処理が完了（exit code 0）することを目的とするワークロードです。処理が完了してもPodは再起動されません。バッチ処理やDBマイグレーションに使用します。
+
+処理が完了 (exit code 0) することを目的とするワークロードです。  
+処理が完了しても Pod は再起動されません。  
+バッチ処理や DB マイグレーションに使用します。
 
 ```bash
 cat <<EOF > job.yaml
@@ -244,7 +265,9 @@ kubectl logs -l job-name=batch-job
 ```
 
 ### CronJob
-Jobをcron形式のスケジュールで定期実行します。実行のたびにJobリソースとPodが生成されます。
+
+Job を cron 形式のスケジュールで定期実行します。  
+実行のたびに Job リソースと Pod が生成されます。
 
 ```bash
 cat <<EOF > cronjob.yaml
@@ -273,9 +296,10 @@ kubectl get jobs
 
 ---
 
-## 2-4. Namespaceによる分離
+## Namespace による分離
 
-Namespaceはクラスタを論理的に分割する仕組みです。チームや環境（dev/staging/prod）ごとにリソースを分離します。
+Namespace はクラスタを論理的に分割する仕組みです。  
+チームや環境 (dev/staging/prod) ごとにリソースを分離します。
 
 ```bash
 # Namespaceの作成
@@ -304,11 +328,13 @@ Namespace内のServiceには `<service名>.<namespace>.svc.cluster.local` とい
 
 ---
 
-## 2-5. Service と Ingress
+## Service と Ingress
 
-Serviceは **Podのラベル（selector）** に基づいて通信先を決定するため、PodのIPアドレスを意識せずに安定したアクセスポイントを提供できます。kube-proxyが各NodeでIPルーティングを実現しています。
+Serviceは **Podのラベル (selector)** に基づいて通信先を決定するため、Pod の IP アドレスを意識せずに安定したアクセスポイントを提供できます。  
+kube-proxy が各 Node で IP ルーティングを実現しています。
 
-### ClusterIP（クラスタ内部通信用）
+### ClusterIP (クラスタ内部通信用)
+
 ```bash
 kubectl expose deployment web-deploy --port=80 --target-port=80 --name=web-service --type=ClusterIP
 
@@ -317,7 +343,8 @@ kubectl get svc web-service
 kubectl get endpoints web-service
 ```
 
-### NodePort（クラスタ外部からの簡易アクセス用）
+### NodePort (クラスタ外部からの簡易アクセス用)
+
 ```bash
 kubectl expose deployment web-deploy --port=80 --target-port=80 --name=web-nodeport --type=NodePort
 
@@ -328,11 +355,15 @@ kubectl get svc web-nodeport
 # curl http://<NodeのIPアドレス>:<NodePort番号>
 ```
 
-:::note NodePortは学習・開発用途向けです。本番環境の入口にはIngressを使用します。
+:::note
+NodePortは学習・開発用途向けです。本番環境の入口にはIngressを使用します。
 :::
 
-### Ingress（L7ルーティング）
-L7（HTTP/HTTPS）レベルでのルーティングを行います。ホスト名やパスに基づいて複数のServiceにトラフィックを振り分けます。機能するには事前にIngress Controllerのインストールが必要です。
+### Ingress (L7ルーティング)
+
+L7 (HTTP/HTTPS) レベルでのルーティングを行います。  
+ホスト名やパスに基づいて複数の Service にトラフィックを振り分けます。  
+機能するには事前に Ingress Controller のインストールが必要です。
 
 ```bash
 # Ingress Controller (ingress-nginx) のインストール
@@ -347,7 +378,7 @@ kubectl wait --namespace ingress-nginx \
 ```
 
 ```bash
-# Ingressリソースの作成（pathベースのルーティング例）
+# Ingressリソースの作成 (pathベースのルーティング例)
 cat <<EOF > ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress

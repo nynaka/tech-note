@@ -1,5 +1,5 @@
 ---
-title: Kubernetesクラスタの構築
+title: Kubernetes クラスタの構築
 description: Debian / Fedora OS 上に kubeadm を使って Kubernetes クラスタを構築する手順を解説します。
 #sidebar_position: 0
 #id: home
@@ -9,7 +9,7 @@ description: Debian / Fedora OS 上に kubeadm を使って Kubernetes クラス
 Kubernetesクラスタの構築
 ===
 
-このフェーズでは、Debian/Fedora OS上に Kubernetes クラスタを構築します。
+ここでは、Debian/Fedora OS上に Kubernetes クラスタを構築します。
 
 ---
 

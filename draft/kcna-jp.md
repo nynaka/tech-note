@@ -6,7 +6,8 @@ description: KCNA-JP（Kubernetes and Cloud Native Associate）は、Linux Found
 #slug: /my-custom-url
 ---
 
-# KCNA-JP (Kubernetes and Cloud Native Associate) 試験
+KCNA-JP (Kubernetes and Cloud Native Associate) 試験
+===
 
 ## 1. 試験概要
 
