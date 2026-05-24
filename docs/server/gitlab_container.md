@@ -196,3 +196,7 @@ Runner のインストール方法は Girlab リポジトリの
     curl -s https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh | sudo bash
     sudo dnf install -y gitlab-runner
     ```
+
+## アップグレード
+
+[Upgrade Path](https://gitlab-com.gitlab.io/support/toolbox/upgrade-path/?distro=docker&edition=ce) を使用すると目的のバージョンまでアップグレードパスを確認できます。
