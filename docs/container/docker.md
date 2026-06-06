@@ -1,17 +1,16 @@
 ---
-title: Docker インストール
-description: Debian/Ubuntu 系および Fedora/RHEL 系 Linux への Docker Engine インストール手順です。
+title: docker
+description: Debian/Ubuntu 系および Fedora/RHEL 系 Linux への Docker Engine インストール手順です
 ---
 
-:::note ファイアウォールに関する注意事項
+docker
+===
 
+:::note ファイアウォールに関する注意事項
 - ufw や firewalld を使用している場合、Docker はコンテナのポートを公開する際にファイアウォールのルールをバイパスします。  
   詳細は [Docker and ufw](https://docs.docker.com/engine/network/packet-filtering-firewalls/#docker-and-ufw) を参照してください。
 - Docker は iptables-nft および iptables-legacy のみに対応しています。nft で作成されたファイアウォールルールはサポートされません。
 :::
-
-Docker インストール
-===
 
 ## Debian / Ubuntu 系
 
