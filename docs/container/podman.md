@@ -1,19 +1,19 @@
 ---
-title: Podman
-description: Podmanの基本的な使い方の解説です。
+title: podman
+description: podmanの基本的な使い方の解説です。
 #sidebar_position: 0
 #id: home
 #slug: /my-custom-url
 ---
 
-Podman
+podman
 ===
 
-## 1. Podman のインストール方法
+## 1. podman のインストール方法
 
 ### Debian / Ubuntu (apt)
 
-Podman は公式リポジトリに含まれています（Debian 11以降、Ubuntu 20.10以降）。
+podman は公式リポジトリに含まれています（Debian 11以降、Ubuntu 20.10以降）。
 
 ```bash
 sudo apt update
@@ -27,7 +27,7 @@ sudo apt install -y slirp4netns fuse-overlayfs uidmap
 
 ### Fedora / RHEL / AlmaLinux / Rocky Linux (dnf)
 
-Red Hat 系のディストリビューションでは Podman は標準的なツールとして提供されています。
+Red Hat 系のディストリビューションでは podman は標準的なツールとして提供されています。
 
 ```bash
 sudo dnf install -y podman
@@ -41,7 +41,7 @@ sudo dnf install -y podman
 
 ## 2. コンテナのライフサイクル
 
-Podman は Docker とコマンドの互換性が非常に高く、ほとんどの docker コマンドを podman に置き換えるだけで動作します。
+podman は Docker とコマンドの互換性が非常に高く、ほとんどの docker コマンドを podman に置き換えるだけで動作します。
 
 ### コンテナイメージの取得
 
@@ -53,7 +53,7 @@ podman pull <イメージ名>
 
 ### Dockerfile 相当のテンプレファイルの書き方
 
-Podman では Dockerfile という名前も使えますが、 Containerfile という名前が推奨されることもあります。  
+podman では Dockerfile という名前も使えますが、 Containerfile という名前が推奨されることもあります。  
 内容は Docker と同じです。
 
 **例: Containerfile**
