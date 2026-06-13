@@ -1,7 +1,6 @@
-
 ---
 title: containerd
-description: containerdの基本的な使い方の解説です。
+description: containerdの基本的な使い方の解説です
 #sidebar_position: 0
 #id: home
 #slug: /my-custom-url

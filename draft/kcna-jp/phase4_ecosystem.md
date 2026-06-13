@@ -1,12 +1,19 @@
-# フェーズ4：クラウドネイティブ・エコシステムの体験（実技手順）
+---
+title: クラウドネイティブ・エコシステム
+description: Kubernetes 本体以外の主要な CNCF プロジェクト（コンテナイメージ・レジストリ、Helm パッケージ管理、サービスメッシュなど）を操作し、クラウドネイティブ・エコシステム全体の役割の確認
+#sidebar_position: 0
+#id: home
+#slug: /my-custom-url
+---
 
-このフェーズでは、Kubernetes本体以外の主要なCNCFプロジェクトを操作し、エコシステム全体の役割を体感します。
+クラウドネイティブ・エコシステム
+===
 
-## 4-1. コンテナイメージのビルドとレジストリ
+## コンテナイメージ の ビルド と レジストリ
 
 アプリケーション配信の出発点は、コンテナイメージの作成とレジストリへの保存です。
 
-### Dockerfileによるイメージビルド
+### Dockerfile によるイメージビルド
 
 ```bash
 # サンプルアプリとDockerfileの作成
@@ -36,7 +43,7 @@ docker tag myapp:v1.0 ghcr.io/<your-username>/myapp:v1.0
 docker inspect --format='{{index .RepoDigests 0}}' myapp:v1.0
 ```
 
-### コンテナレジストリへのpush/pull
+### コンテナレジストリへの push / pull
 
 ```bash
 # GitHub Container Registry へのログインとpush
@@ -44,7 +51,7 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u <your-username> --password-stdin
 docker push ghcr.io/<your-username>/myapp:v1.0
 ```
 
-### プライベートレジストリからのpull（imagePullSecret）
+### プライベートレジストリからの pull (imagePullSecret)
 
 ```bash
 # レジストリ認証情報をSecretとして登録
@@ -66,12 +73,13 @@ spec:
   - name: app
     image: ghcr.io/<your-username>/myapp:v1.0
 EOF
+
 kubectl apply -f pod-private.yaml
 ```
 
 ---
 
-## 4-2. パッケージ管理 (Helm)
+## パッケージ管理 (Helm)
 
 Helmは、複数のマニフェストを「Chart」としてテンプレート化し、バージョン管理されたパッケージとして配布・管理するツールです。
 
@@ -82,7 +90,7 @@ graph LR
     Helm --> K8s[Kubernetes Cluster]
 ```
 
-### Helmの基本操作
+### Helm の基本操作
 
 ```bash
 # Helmのインストール (Debian)
@@ -135,19 +143,19 @@ helm uninstall my-nginx
 
 ---
 
-## 4-3. 可観測性 (Observability)
+## 可観測性 (Observability)
 
 システムの内部状態を把握するためのテレメトリの3本柱を体験します。
 
 :::info 可観測性の3本柱
-| 種類 | 問いかけ | 代表ツール |
-|---|---|---|
-| **Metrics（メトリクス）** | 「どのくらい？」— CPUやメモリなど数値の時系列変化 | Prometheus, Grafana |
-| **Logs（ログ）** | 「何が起きた？」— イベントやエラーの記録 | Loki, Fluent Bit |
-| **Traces（トレース）** | 「どこで遅い？」— リクエストのサービス間伝播の追跡 | Jaeger, OpenTelemetry |
+| 種類                 | 問いかけ                                           | 代表ツール            |
+| -------------------- | -------------------------------------------------- | --------------------- |
+| Metrics (メトリクス) | 「どのくらい？」— CPUやメモリなど数値の時系列変化  | Prometheus, Grafana   |
+| Logs (ログ)          | 「何が起きた？」— イベントやエラーの記録           | Loki, Fluent Bit      |
+| Traces (トレース)    | 「どこで遅い？」— リクエストのサービス間伝播の追跡 | Jaeger, OpenTelemetry |
 :::
 
-### kubectl によるログ確認（基本）
+### kubectl によるログ確認 (基本)
 
 ```bash
 # Podのログ確認
@@ -181,9 +189,9 @@ kubectl port-forward svc/prometheus-grafana 3000:80 -n monitoring
 # デフォルトのログイン情報: admin / prom-operator
 ```
 
-### Logs：Loki と Fluent Bit のデプロイ
+### Logs: Loki と Fluent Bit のデプロイ
 
-Loki はログの収集・保存基盤、Fluent Bit は全NodeにDaemonSetとして配置されるログ転送エージェントです。
+Loki はログの収集・保存基盤、Fluent Bit は全 Node に DaemonSet として配置されるログ転送エージェントです。
 
 ```bash
 # Grafana Loki Stack（Loki + Fluent Bit）のデプロイ
@@ -208,9 +216,9 @@ kubectl get pods -n monitoring -l app.kubernetes.io/name=fluent-bit -o wide
 
 ---
 
-## 4-4. アプリケーションの配信と GitOps (ArgoCD)
+## アプリケーションの配信と GitOps (ArgoCD)
 
-GitOpsは、GitをKubernetesクラスタの唯一の情報源（Single Source of Truth）とし、Git上のDesired StateとクラスタのActual Stateを常に同期させるCDアプローチです。
+GitOps は、Git を Kubernetes クラスタの唯一の情報源 (Single Source of Truth) とし、Git 上の Desired State とクラスタの Actual State を常に同期させるCDアプローチです。
 
 ```mermaid
 sequenceDiagram
@@ -247,7 +255,7 @@ kubectl port-forward svc/argocd-server 8080:443 -n argocd
 # ブラウザで https://localhost:8080 にアクセス
 ```
 
-### Application の作成（GitリポジトリとKubernetesの同期設定）
+### Application の作成 (Git リポジトリと Kubernetes の同期設定)
 
 ```bash
 # ArgoCD CLIでログイン
@@ -279,9 +287,10 @@ argocd app get myapp   # STATUS が Healthy/Synced に戻ることを確認
 
 ---
 
-## 4-5. サービスメッシュ（概要）
+## サービスメッシュ (概要)
 
-サービスメッシュは、アプリケーションコードを変更せずにサイドカープロキシ経由で通信制御・可観測性・mTLS（相互TLS）を実現する仕組みです。KCNA-JPでは概念の理解が問われるため、全体像の把握を優先します。
+サービスメッシュは、アプリケーションコードを変更せずにサイドカープロキシ経由で通信制御・可観測性・mTLS (相互TLS) を実現する仕組みです。  
+KCNA-JP では概念の理解が問われるため、全体像の把握を優先します。
 
 ```mermaid
 graph LR

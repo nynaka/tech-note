@@ -1,8 +1,15 @@
-# フェーズ3：設定・ストレージ・セキュリティ・スケジューリング（実技手順）
+---
+title: 設定・ストレージ・セキュリティ・スケジューリング
+description: Kubernetesの設定管理 (ConfigMap / Secret)、ストレージ、セキュリティ、スケジューリングなどの詳細設定
+#sidebar_position: 0
+#id: home
+#slug: /my-custom-url
+---
 
-このフェーズでは、本番運用に必要な詳細設定・セキュリティ・リソース管理について学びます。
+設定・ストレージ・セキュリティ・スケジューリング
+===
 
-## 3-1. アプリケーション設定の分離 (ConfigMap / Secret)
+## アプリケーション設定の分離 (ConfigMap / Secret)
 
 ### ConfigMap の作成とマウント
 
@@ -40,6 +47,7 @@ spec:
           name: app-config
           key: LOG_LEVEL
 EOF
+
 kubectl apply -f pod-configmap.yaml
 kubectl logs pod-with-config
 ```
@@ -50,6 +58,7 @@ cat <<EOF > app.conf
 timeout=30
 max_connections=100
 EOF
+
 kubectl create configmap file-config --from-file=app.conf
 
 cat <<EOF > pod-configmap-vol.yaml
@@ -70,6 +79,7 @@ spec:
     configMap:
       name: file-config
 EOF
+
 kubectl apply -f pod-configmap-vol.yaml
 kubectl logs pod-with-config-vol
 ```
@@ -77,7 +87,8 @@ kubectl logs pod-with-config-vol
 ### Secret の作成 (Base64エンコードの注意点)
 
 :::warning SecretはBase64エンコードであり暗号化ではない
-`kubectl get secret -o yaml` で確認すると、値はBase64でエンコードされているだけです。etcdへの保存時に暗号化するには別途 `EncryptionConfiguration` の設定が必要です。
+`kubectl get secret -o yaml` で確認すると、値はBase64でエンコードされているだけです。  
+etcd への保存時に暗号化するには別途 `EncryptionConfiguration` の設定が必要です。
 :::
 
 ```bash
@@ -94,7 +105,7 @@ echo  # 改行を追加
 
 ---
 
-## 3-2. データ永続化 (Storage)
+## データ永続化 (Storage)
 
 ```mermaid
 graph LR
@@ -122,6 +133,7 @@ spec:
   hostPath:
     path: "/mnt/data"
 EOF
+
 kubectl apply -f pv.yaml
 
 # PVCの作成（ユーザーがストレージを要求する）
@@ -137,6 +149,7 @@ spec:
     requests:
       storage: 1Gi
 EOF
+
 kubectl apply -f pvc.yaml
 
 # PVCがBound状態になったことを確認
@@ -144,7 +157,7 @@ kubectl get pvc local-pvc
 kubectl get pv local-pv
 ```
 
-### PVCのPodへのマウントとデータ永続性の確認
+### PVC の Pod へのマウントとデータ永続性の確認
 
 ```bash
 cat <<EOF > pod-pvc.yaml
@@ -165,6 +178,7 @@ spec:
     persistentVolumeClaim:
       claimName: local-pvc
 EOF
+
 kubectl apply -f pod-pvc.yaml
 
 # データの書き込みを確認
@@ -177,7 +191,8 @@ kubectl exec pod-with-storage -- cat /data/test.txt
 ```
 
 ### StorageClass と動的プロビジョニング
-StorageClassを使用すると、PVCの作成時にPVが自動的に作成されます（Dynamic Provisioning）。
+
+StorageClass を使用すると、PVC の作成時に PV が自動的に作成されます (Dynamic Provisioning)。
 
 ```bash
 # クラスタで利用可能なStorageClassを確認
@@ -190,9 +205,9 @@ kubectl get storageclass
 
 ---
 
-## 3-3. セキュリティとアクセス制御 (RBAC)
+## セキュリティとアクセス制御 (RBAC)
 
-RBACは「**誰が（Subject）**・**何のリソースに（Resource）**・**何をできるか（Verb）**」の3要素で権限を定義します。
+RBAC は「**誰が（Subject）**・**何のリソースに（Resource）**・**何をできるか（Verb）**」の 3 要素で権限を定義します。
 
 ### Role と RoleBinding の作成
 
@@ -217,8 +232,9 @@ kubectl auth can-i list pods --as=jane
 kubectl auth can-i delete pods --as=jane   # → "no" になるはず
 ```
 
-### ServiceAccountを使ったRBAC
-PodがKubernetes APIにアクセスする際のIDとしてServiceAccountを使用します。
+### ServiceAccount を使った RBAC
+
+Pod が Kubernetes API にアクセスする際の ID として ServiceAccount を使用します。
 
 ```bash
 # ServiceAccountの作成
@@ -243,6 +259,7 @@ spec:
     image: bitnami/kubectl:latest
     command: ["sleep", "3600"]
 EOF
+
 kubectl apply -f pod-sa.yaml
 
 # Pod内からkubernetes APIへのアクセスを確認
@@ -255,9 +272,9 @@ kubectl auth can-i list pods --as=system:serviceaccount:default:app-sa
 
 ---
 
-## 3-4. リソース管理 (ResourceQuota / LimitRange)
+## リソース管理 (ResourceQuota / LimitRange)
 
-### ResourceQuota（Namespace全体のリソース上限）
+### ResourceQuota (Namespace全体のリソース上限)
 
 ```bash
 # dev-team Namespaceへのリソース制限
@@ -275,13 +292,14 @@ spec:
     limits.memory: 8Gi
     count/pods: "10"
 EOF
+
 kubectl apply -f resourcequota.yaml
 
 # Quotaの使用状況確認（USED / HARD の対比で確認）
 kubectl describe resourcequota dev-quota -n dev-team
 ```
 
-### LimitRange（Pod/Containerごとのデフォルト値と上下限）
+### LimitRange (Pod/Containerごとのデフォルト値と上下限)
 
 ```bash
 cat <<EOF > limitrange.yaml
@@ -306,6 +324,7 @@ spec:
       cpu: "100m"
       memory: 64Mi
 EOF
+
 kubectl apply -f limitrange.yaml
 
 kubectl describe limitrange dev-limits -n dev-team
@@ -313,10 +332,11 @@ kubectl describe limitrange dev-limits -n dev-team
 
 ---
 
-## 3-5. ネットワークセキュリティ (NetworkPolicy)
+## ネットワークセキュリティ (NetworkPolicy)
 
 :::caution
-NetworkPolicyの施行はCNIプラグインが担当します。**Calico** など対応したCNIが必要です。Flannelのみでは効果がありません。
+NetworkPolicyの施行はCNIプラグインが担当します。  
+**Calico** など対応したCNIが必要です。Flannelのみでは効果がありません。
 :::
 
 デフォルトのKubernetesはNamespace間も含めた全Pod間通信を許可します（default-allow）。
@@ -335,6 +355,7 @@ spec:
   policyTypes:
   - Ingress
 EOF
+
 kubectl apply -f default-deny.yaml
 
 # 疎通が遮断されたことを確認（タイムアウトになる）
@@ -343,7 +364,7 @@ kubectl run tester --image=busybox --restart=Never -it --rm -- \
 # → wget: download timed out
 ```
 
-### ホワイトリスト追加（特定Podからの通信のみ許可）
+### ホワイトリスト追加 (特定 Pod からの通信のみ許可)
 
 ```bash
 cat <<EOF > allow-from-frontend.yaml
@@ -367,6 +388,7 @@ spec:
     - protocol: TCP
       port: 80
 EOF
+
 kubectl apply -f allow-from-frontend.yaml
 
 # 許可されたPodからはアクセスできることを確認
@@ -381,9 +403,9 @@ kubectl run blocked-pod --image=busybox \
 
 ---
 
-## 3-6. Podスケジューリングの制御
+## Pod スケジューリングの制御
 
-### nodeSelector（特定ラベルのNodeにのみ配置）
+### nodeSelector (特定ラベルのNodeにのみ配置)
 
 ```bash
 # Nodeにラベルを付与
@@ -402,6 +424,7 @@ spec:
   - name: nginx
     image: nginx:alpine
 EOF
+
 kubectl apply -f pod-nodeselector.yaml
 
 # 指定したNodeに配置されていることを確認
@@ -409,7 +432,8 @@ kubectl get pod pod-on-ssd -o wide
 ```
 
 ### Taint と Toleration
-NodeにTaint（汚染）を付与すると、そのTaintを許容する `Toleration` を持つPodしかスケジュールされなくなります。
+
+NodeにTaint (汚染) を付与すると、その Taint を許容する `Toleration` を持つ Pod しかスケジュールされなくなります。
 
 ```bash
 # ノードにTaintを付与（GPU専用ノード化の例）
@@ -435,6 +459,7 @@ spec:
   - name: nginx
     image: nginx
 EOF
+
 kubectl apply -f pod-toleration.yaml
 kubectl get pod pod-on-special-node -o wide   # → node1 に配置される
 
@@ -443,7 +468,8 @@ kubectl taint nodes node1 gpu=true:NoSchedule-
 ```
 
 ### NodeAffinity
-`nodeSelector` より表現力が高く、ハード（必須）とソフト（優先）を使い分けられます。
+
+`nodeSelector` より表現力が高く、ハード (必須) とソフト (優先) を使い分けられます。
 
 ```bash
 cat <<EOF > pod-affinity.yaml
@@ -473,6 +499,7 @@ spec:
   - name: nginx
     image: nginx:alpine
 EOF
+
 kubectl apply -f pod-affinity.yaml
 kubectl get pod pod-with-affinity -o wide
 ```
