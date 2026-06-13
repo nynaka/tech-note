@@ -81,22 +81,42 @@ description: Github Copilot のインストールに関する手順です。
 
 前提条件: Node.js 22 以降
 
+<details>
+<summary>Node.js をインストールしていない場合</summary>
 - nvm のインストール
 
     ```bash
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-    source ~/.bashrc
     ```
 
-- Node.js のインストール
+- .bashrc の再読み込み
 
     ```bash
-    nvm install --lts
-    node -v
-    npm -v
+    source $HOME/.bashrc
     ```
 
-- インストール
+- nvm でインストールできる Node.js のバージョン確認
+
+    ```bash
+    nvm ls-remote --lts
+    ```
+
+- Node.js のインストール (ここでは v24.15.0)
+
+    ```bash
+    nvm install v24.15.0
+    ```
+
+- バージョンの確認
+
+    ```basb
+    node -v
+    npm -v
+    npx -v
+    ```
+</details>
+
+- Github Copilot CLI のインストール
 
     ```bash
     npm install -g @github/copilot

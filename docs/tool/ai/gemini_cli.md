@@ -33,10 +33,10 @@ description: Gemini CLI のインストールに関する手順です。
     nvm ls-remote --lts
     ```
 
-- Node.js のインストール (ここでは v24.12.0)
+- Node.js のインストール (ここでは v24.15.0)
 
     ```bash
-    nvm install v24.13.0
+    nvm install v24.15.0
     ```
 
 - バージョンの確認
