@@ -1,7 +1,7 @@
 ---
 title: Linux を使った単純なルーティング
 description: Linux のフォワーディング機能を使った単純なルーティングと疎通確認
-sidebar_label: 1.Linux を使った単純なルーティング
+sidebar_label: Linux を使った単純なルーティング
 ---
 
 Linux 間の単純なルーティング構成

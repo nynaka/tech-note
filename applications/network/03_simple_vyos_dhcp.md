@@ -1,7 +1,7 @@
 ---
 title: VyOSの永続化とDHCP
 description: VyOS をディスクにインストールし、OSの永続化および DHCP によるアドレスとルートの配布を設定します
-sidebar_label: 3.VyOSの永続化とDHCP
+sidebar_label: VyOS の永続化と DHCP
 ---
 
 VyOS の DHCP サーバーを利用したルーティング構成

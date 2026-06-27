@@ -1,7 +1,7 @@
 ---
 title: VyOS を使った単純なルーティング
 description: VyOS を使った単純なルーティングと疎通確認
-sidebar_label: 2.VyOSを使った単純なルーティング
+sidebar_label: VyOS を使った単純なルーティング
 ---
 
 VyOS を使った単純なルーティング
