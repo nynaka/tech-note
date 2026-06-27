@@ -11,7 +11,7 @@ Linux 間の単純なルーティング構成
 
 ### 実行環境
 
-実機を用意するのは大変なので仮想マシンでも実行可能です。  
+実機は用意が大変なので仮想マシンで実行可能です。  
 ここでは下記の環境で動作確認を行っています。  
 仮想マシンを動かす PC には、16 GB以上メモリがあると安心です。
 
@@ -21,30 +21,32 @@ Linux 間の単純なルーティング構成
 | VM       | vCPU 1、メモリ 2GB、ストレージ 8 GB |
 | OS       | Debian Linux 13 最小インストール    |
 
+試していませんが、Oracle VirtualBox でも実行可能のはずです。
+
 ### Linux にインストールしておくもの
 
 SSH サーバ／クライアントと ping が必要になります。  
-su コマンドで root ユーザに昇格し下記のパッケージをインストールしておいてください。
+sudo もあると便利です。  
+Debian を最小インストールすると、sudo コマンドが無いので、su コマンドで root に昇格し下記のパッケージをインストールしておいてください。
 
 ```bash
 apt update
 apt install ssh inetutils-ping
+# SSH の自動起動設定
+systemctl enable ssh
+systemctl start ssh
+
 # 最小インストールの debian には sudo コマンドが無いので、
 # インストールしておくと他の Linux 同じに使用できて便利です。
 apt install sudo
+
 # sudo グループに debian アカウントを追加します。
 # debian アカウントはインストールした環境に合わせて適宜修正してください。
 # sudo グループの設定は、再ログイン後に反映されます。
 /sbin/usermod -aG sudo debian
 ```
 
-### VMware 仮想ネットワークの構成
-
-![VMware 仮想ネットワークの構成](./01_simple_linux_static/01_simple_linux_static1.png)
-
----
-
-## 構成図
+### ネットワーク構成
 
 ```mermaid
 graph LR
@@ -64,13 +66,18 @@ graph LR
     linux_router ---|10.1.2.0/24| Linux2
 ```
 
-## 前提条件
+**VMware の仮想ネットワーク構成**
 
-- 各ノードのOS: Debian Linux
-- 各ノードのファイアウォール (iptables/nftables 等) はパケットを破棄しない (ACCEPT) 状態であること。
-- インターフェース名 (`eth0`, `eth1`) は環境に合わせて適宜読み替えてください。
+![VMware 仮想ネットワークの構成](./01_simple_linux_static/01_simple_linux_static1.png)
+
+---
 
 ## 構築手順
+
+:::important
+- インターフェース名 (`eth0`, `eth1`) は環境に合わせて適宜読み替えてください。
+- 設定は永続化してないので、OS 再起動すると初期状態に戻ります。
+:::
 
 ### 1. Linux Router の設定
 

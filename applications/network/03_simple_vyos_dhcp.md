@@ -40,41 +40,12 @@ set service ssh
 
 ---
 
-
-
-
-## 構成図
-
-```mermaid
-graph LR
-    subgraph subnet1 [Subnet 1: 10.1.1.0/24]
-        linux1["linux1<br>eth0: DHCP Client"]
-    end
-    
-    subgraph router [Router / DHCP Server]
-        vyos["VyOS<br>eth0: 10.1.1.254/24<br>eth1: 10.1.2.254/24"]
-    end
-    
-    subgraph subnet2 [Subnet 2: 10.1.2.0/24]
-        linux2["linux2<br>eth0: DHCP Client"]
-    end
-    
-    linux1 ---|10.1.1.0/24| vyos
-    vyos ---|10.1.2.0/24| linux2
-```
-
-## 前提条件
-
-- エンドノード (linux1, linux2) のOS: Debian Linux
-- ルーターのOS: VyOS
-- 各Linuxノードのインターフェースは手動のIPアドレス設定が行われておらず、DHCPクライアントとして動作できる状態であること。
-- インターフェース名（`eth0`, `eth1`）は環境に合わせて適宜読み替えてください。
-
 ## 構築手順
 
 ### 1. VyOS の設定 (インターフェースとDHCP)
 
-VyOSにIPアドレスを設定し、各サブネット向けのDHCPサーバー機能を有効化します。これにより、クライアントにIPアドレスと他方サブネットへの静的ルートが配布されます。
+VyOS に IP アドレスを設定し、各サブネット向けの DHCP サーバー機能を有効化します。  
+これにより、クライアントに IP アドレスと他方サブネットへの静的ルートが配布されます。
 
 ```text
 # 設定モードに入る
@@ -106,66 +77,71 @@ exit
 
 ### 2. linux1 の設定 (DHCPの取得)
 
-subnet1に所属するDebian LinuxでDHCPクライアントを実行し、IPアドレスとルート情報を取得します。
+subnet1 に所属する Debian Linux で DHCP クライアントを実行し、IP アドレスとルート情報を取得します。
 
 ```bash
 # インターフェースを起動
 sudo ip link set eth0 up
 
 # DHCPでIPアドレスとルート情報を取得
-sudo dhclient eth0
+sudo dhcpcd eth0
 ```
 
 ### 3. linux2 の設定 (DHCPの取得)
 
-subnet2に所属するDebian Linuxでも同様にDHCPクライアントを実行します。
+subnet2 に所属する Debian Linux でも同様に DHCP クライアントを実行します。
 
 ```bash
 # インターフェースを起動
 sudo ip link set eth0 up
 
 # DHCPでIPアドレスとルート情報を取得
-sudo dhclient eth0
+sudo dhcpcd eth0
 ```
 
 ## 疎通確認手順
 
 ### IPアドレスとルーティングテーブルの確認
 
-各Linuxノードで、DHCPから正しくIPアドレスとデフォルトルートが割り当てられているか確認します。
+各 Linux ノードで、DHCP から正しく IP アドレスとデフォルトルートが割り当てられているか確認します。
 
 ```bash
-# 割り当てられたIPアドレスの確認 (例としてlinux1では 10.1.1.100 等になります)
+# 割り当てられたIPアドレスの確認 (例として linux1 では 10.1.1.100 等になります)
 ip addr show dev eth0
 
 # ルーティングテーブルの確認
 ip route
 ```
 
-**linux1の期待されるルーティングテーブル出力例:**
+**linux1 の期待されるルーティングテーブル出力例:**
+
 ```text
 10.1.1.0/24 dev eth0 proto kernel scope link src 10.1.1.100 
 10.1.2.0/24 via 10.1.1.254 dev eth0 
 ```
-デフォルトルートは設定されず、他方のサブネット（`10.1.2.0/24`）への静的ルートがDHCPから配布され、VyOSを経由して通信が可能になります。
+
+デフォルトルートは設定されず、他方のサブネット（`10.1.2.0/24`）への静的ルートが DHCP から配布され、VyOS を経由して通信が可能になります。
 
 ### pingによる疎通確認
 
-確認したIPアドレスを用いて、互いにpingで疎通確認を行います。
-（※ここでは、DHCPにより `linux1` が `10.1.1.100`、`linux2` が `10.1.2.100` を取得したと仮定します）
+確認した IP アドレスを用いて、互いにpingで疎通確認を行います。
+（※ここでは、DHCP により `linux1` が `10.1.1.100`、`linux2` が `10.1.2.100` を取得したと仮定します）
 
 **linux1 から linux2 への通信確認:**
+
 ```bash
 ping -c 4 10.1.2.100
 ```
 
 **linux2 から linux1 への通信確認:**
+
 ```bash
 ping -c 4 10.1.1.100
 ```
 
-VyOS側でも、DHCPのリース状況を確認できます。
+VyOS 側でも、DHCP のリース状況を確認できます。
+
 ```text
-# VyOSでのDHCPリース状況の確認
+# VyOS での DHCP リース状況の確認
 show dhcp server leases
 ```

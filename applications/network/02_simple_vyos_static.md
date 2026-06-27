@@ -11,7 +11,7 @@ VyOS を使った単純なルーティング
 
 ### 実行環境
 
-実機を用意するのは大変なので仮想マシンでも実行可能です。  
+実機は用意が大変なので仮想マシンで実行可能です。  
 ここでは下記の環境で動作確認を行っています。  
 仮想マシンを動かす PC には、16 GB以上メモリがあると安心です。
 
@@ -21,30 +21,32 @@ VyOS を使った単純なルーティング
 | VM       | vCPU 1、メモリ 2GB、ストレージ 8 GB |
 | OS       | ルータ：vyos-2026.06.20-0050-rolling-generic-amd64 <br />その他：Debian Linux 13 最小インストール    |
 
+試していませんが、Oracle VirtualBox でも実行可能のはずです。
+
 ### Linux にインストールしておくもの
 
 SSH サーバ／クライアントと ping が必要になります。  
-su コマンドで root ユーザに昇格し下記のパッケージをインストールしておいてください。
+sudo もあると便利です。  
+Debian を最小インストールすると、sudo コマンドが無いので、su コマンドで root に昇格し下記のパッケージをインストールしておいてください。
 
 ```bash
 apt update
 apt install ssh inetutils-ping
+# SSH の自動起動設定
+systemctl enable ssh
+systemctl start ssh
+
 # 最小インストールの debian には sudo コマンドが無いので、
 # インストールしておくと他の Linux 同じに使用できて便利です。
 apt install sudo
+
 # sudo グループに debian アカウントを追加します。
 # debian アカウントはインストールした環境に合わせて適宜修正してください。
 # sudo グループの設定は、再ログイン後に反映されます。
 /sbin/usermod -aG sudo debian
 ```
 
-### VMware 仮想ネットワークの構成
-
-![VMware 仮想ネットワークの構成](./01_simple_linux_static/01_simple_linux_static1.png)
-
----
-
-## 構成図
+### ネットワーク構成
 
 ```mermaid
 graph LR
@@ -64,18 +66,23 @@ graph LR
     vyos ---|10.1.2.0/24| linux2
 ```
 
-## 前提条件
+### VMware 仮想ネットワークの構成
 
-- エンドノード (linux1, linux2) のOS: Debian Linux
-- ルーターのOS: VyOS
-- 各Linuxノードのファイアウォール（iptables/nftables等）はパケットを破棄しない（ACCEPT）状態であること。
-- インターフェース名（`eth0`, `eth1`）は環境に合わせて適宜読み替えてください。
+![VMware 仮想ネットワークの構成](./01_simple_linux_static/01_simple_linux_static1.png)
+
+**VMware の仮想ネットワーク構成**
 
 ## 構築手順
 
+:::important
+- インターフェース名 (`eth0`, `eth1`) は環境に合わせて適宜読み替えてください。
+- 設定は永続化してないので、OS 再起動すると初期状態に戻ります。
+:::
+
 ### 1. VyOS の設定
 
-VyOSで各インターフェースにIPアドレスを設定します。VyOSではIPアドレスが設定されたインターフェース間のルーティング（フォワーディング）はデフォルトで有効になります。
+VyOS で各インターフェースに IP アドレスを設定します。  
+VyOS では IP アドレスが設定されたインターフェース間のルーティング（フォワーディング）はデフォルトで有効になります。
 
 ```text
 # 設定モードに入る
@@ -97,7 +104,8 @@ exit
 
 ### 2. linux1 の設定
 
-subnet1に所属するDebian Linuxの設定です。IPアドレスの設定と、subnet2宛てのスタティックルートを追加します。
+subnet1 に所属する Debian Linux の設定です。  
+IP アドレスの設定と、subnet2 宛てのスタティックルートを追加します。
 
 ```bash
 # IPアドレスの設定とリンクアップ
@@ -110,7 +118,8 @@ sudo ip route add 10.1.2.0/24 via 10.1.1.254
 
 ### 3. linux2 の設定
 
-subnet2に所属するDebian Linuxの設定です。IPアドレスの設定と、subnet1宛てのスタティックルートを追加します。
+subnet2 に所属する Debian Linux の設定です。  
+IP アドレスの設定と、subnet1 宛てのスタティックルートを追加します。
 
 ```bash
 # IPアドレスの設定とリンクアップ
@@ -134,26 +143,30 @@ sudo ip route add 10.1.1.0/24 via 10.1.2.254
 ip route
 ```
 
-**linux1の期待される出力例:**
+**linux1 の期待される出力例:**
+
 ```text
 10.1.1.0/24 dev eth0 proto kernel scope link src 10.1.1.10 
 10.1.2.0/24 via 10.1.1.254 dev eth0 
 ```
 
-VyOS上でも正しくConnectedルートが認識されているか確認できます。
+VyOS 上でも正しく Connected ルートが認識されているか確認できます。
+
 ```text
 # VyOSでのルーティングテーブルの表示
 show ip route
 ```
 
-### pingによる疎通確認
+### ping による疎通確認
 
 **linux1 から linux2 への通信確認:**
+
 ```bash
 ping -c 4 10.1.2.10
 ```
 
 **linux2 から linux1 への通信確認:**
+
 ```bash
 ping -c 4 10.1.1.10
 ```
