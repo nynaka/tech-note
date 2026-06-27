@@ -39,6 +39,35 @@ const config: Config = {
     [
       '@docusaurus/plugin-content-docs',
       {
+        id: 'applications',
+        path: 'applications',
+        routeBasePath: 'applications',
+        sidebarPath: './sidebars.ts',
+        async sidebarItemsGenerator({ defaultSidebarItemsGenerator, ...args }) {
+          const items = await defaultSidebarItemsGenerator(args);
+          const sortItems = (items: any[]): any[] =>
+            items
+              .sort((a: any, b: any) => {
+                if (a.id === 'index') return -1;
+                if (b.id === 'index') return 1;
+                const aIsCategory = a.type === 'category';
+                const bIsCategory = b.type === 'category';
+                if (aIsCategory && !bIsCategory) return -1;
+                if (!aIsCategory && bIsCategory) return 1;
+                return (a.label ?? a.id ?? '').localeCompare(b.label ?? b.id ?? '');
+              })
+              .map((item: any) =>
+                item.type === 'category'
+                  ? { ...item, items: sortItems(item.items) }
+                  : item
+              );
+          return sortItems(items);
+        },
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
         id: 'draft',
         path: 'draft',
         routeBasePath: 'draft',
@@ -148,6 +177,13 @@ const config: Config = {
         src: 'img/logo.svg',
       },
       items: [
+        {
+          type: 'docSidebar',
+          sidebarId: 'applicationsSidebar',
+          docsPluginId: 'applications',
+          position: 'left',
+          label: '応用例',
+        },
         {
           type: 'docSidebar',
           sidebarId: 'draftSidebar',
