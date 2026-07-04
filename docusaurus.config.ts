@@ -39,47 +39,6 @@ const config: Config = {
     [
       '@docusaurus/plugin-content-docs',
       {
-        id: 'applications',
-        path: 'applications',
-        routeBasePath: 'applications',
-        sidebarPath: './sidebars.ts',
-        async sidebarItemsGenerator({ defaultSidebarItemsGenerator, ...args }) {
-          const items = await defaultSidebarItemsGenerator(args);
-          // args.docsからidとソースパス(元のファイル名)のマップを作成
-          const docsMap = new Map(args.docs.map(doc => [doc.id, doc.source]));
-
-          const sortItems = (items: any[]): any[] =>
-            items
-              .sort((a: any, b: any) => {
-                if (a.id === 'index') return -1;
-                if (b.id === 'index') return 1;
-                const aIsCategory = a.type === 'category';
-                const bIsCategory = b.type === 'category';
-                if (aIsCategory && !bIsCategory) return -1;
-                if (!aIsCategory && bIsCategory) return 1;
-                
-                const isNetworkA = a.id?.startsWith('network/');
-                const isNetworkB = b.id?.startsWith('network/');
-                if (isNetworkA && isNetworkB) {
-                  const aSource = docsMap.get(a.id) ?? a.id ?? '';
-                  const bSource = docsMap.get(b.id) ?? b.id ?? '';
-                  return aSource.localeCompare(bSource);
-                }
-
-                return (a.label ?? a.id ?? '').localeCompare(b.label ?? b.id ?? '');
-              })
-              .map((item: any) =>
-                item.type === 'category'
-                  ? { ...item, items: sortItems(item.items) }
-                  : item
-              );
-          return sortItems(items);
-        },
-      },
-    ],
-    [
-      '@docusaurus/plugin-content-docs',
-      {
         id: 'draft',
         path: 'draft',
         routeBasePath: 'draft',
@@ -116,7 +75,11 @@ const config: Config = {
           routeBasePath: "/",
           sidebarPath: './sidebars.ts',
           async sidebarItemsGenerator({ defaultSidebarItemsGenerator, ...args }) {
-            const items = await defaultSidebarItemsGenerator(args);
+            let items = await defaultSidebarItemsGenerator(args);
+            if (args.sidebarName === 'tutorialSidebar') {
+              items = items.filter(item => !(item.type === 'category' && (item.dirName === 'example' || item.dirName === './example')));
+            }
+            const docsMap = new Map(args.docs.map(doc => [doc.id, doc.source]));
             const sortItems = (items: any[]): any[] =>
               items
                 .sort((a: any, b: any) => {
@@ -127,6 +90,15 @@ const config: Config = {
                   const bIsCategory = b.type === 'category';
                   if (aIsCategory && !bIsCategory) return -1;
                   if (!aIsCategory && bIsCategory) return 1;
+
+                  const isNetworkA = a.id?.startsWith('example/network/');
+                  const isNetworkB = b.id?.startsWith('example/network/');
+                  if (isNetworkA && isNetworkB) {
+                    const aSource = docsMap.get(a.id) ?? a.id ?? '';
+                    const bSource = docsMap.get(b.id) ?? b.id ?? '';
+                    return aSource.localeCompare(bSource);
+                  }
+
                   // 同種はアルファベット順
                   return (a.label ?? a.id ?? '').localeCompare(b.label ?? b.id ?? '');
                 })
@@ -191,10 +163,9 @@ const config: Config = {
       items: [
         {
           type: 'docSidebar',
-          sidebarId: 'applicationsSidebar',
-          docsPluginId: 'applications',
+          sidebarId: 'exampleSidebar',
           position: 'left',
-          label: '応用例',
+          label: 'Example',
         },
         {
           type: 'docSidebar',
