@@ -70,7 +70,7 @@ graph LR
 
 ![VMware 仮想ネットワークの構成](./01_simple_linux_static/01_simple_linux_static1.png)
 
-**VMware の仮想ネットワーク構成**
+---
 
 ## 構築手順
 
