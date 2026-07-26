@@ -280,7 +280,8 @@ Control Plane と Worker Node を同居させる場合（後述）、**kubeadm j
 :::
 
 ```bash
-# 例: sudo kubeadm join <Master-IP>:6443 --token <token> --discovery-token-ca-cert-hash sha256:<hash>
+# 例:
+sudo kubeadm join <Master-IP>:6443 --token <token> --discovery-token-ca-cert-hash sha256:<hash>
 ```
 
 :::caution トークンの有効期限に注意
