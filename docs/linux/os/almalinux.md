@@ -1,12 +1,12 @@
 ---
-title: Alma Linux メモ
+title: Alma Linux
 description: Alma Linux の操作に関するメモです
 #sidebar_position: 0
 #id: home
 #slug: /my-custom-url
 ---
 
-Alma Linux メモ
+Alma Linux
 ===
 
 ## ネットワーク
@@ -38,9 +38,103 @@ Alma Linux メモ
 
 ---
 
-## アプリ
+## Firewall
+
+### firewalld の設定確認
+
+```bash
+sudo firewall-cmd --list-all
+```
+
+### Zone 関連コマンド
+
+- Zone 一覧
+
+    ```bash
+    sudo firewall-cmd --get-zones
+    ```
+
+- Active Zone の確認
+
+    ```bash
+    sudo firewall-cmd --get-active-zones
+    ```
+
+- Default Zone の確認
+
+    ```bash
+    sudo firewall-cmd --get-default-zones
+    ```
+
+- Default Zone の変更
+
+    ```bash
+    sudo ZONE_NAME="internal"
+    sudo firewall-cmd --set-default-zone=${ZONE_NAME}
+    ```
+
+- 特定の NIC に設定する Zone の変更
+
+    ```bash
+    NIC_NAME="eno1"
+    ZONE_NAME="internal"
+    sudo firewall-cmd --change-interface=${NIC_NAME} --zone=${ZONE_NAME}
+    ```
+
+- ゾーンに許可されているサービス一覧だけの確認
+
+    ```bash
+    sudo firewall-cmd --zone=internal --list-services
+    ```
+
+- ゾーンのすべての設定確認 (サービス一覧を含む)
+
+    ```bash
+    sudo firewall-cmd --zone=internal --list-all
+    ```
+
+### 通信を許可するサービスの追加・確認・削除
+
+- サービスの追加
+
+    ```bash
+    # SSH
+    sudo firewall-cmd --add-service=ssh --zone=internal --permanent
+    # mDNS (avahi)
+    sudo firewall-cmd --add-service=mdns --zone=internal --permanent
+    # 設定反映
+    sudo firewall-cmd --reload
+    ```
+
+---
+
+## CUI アプリ
+
+### Guake
+
+:::warning
+下記の手順ではインストールできるが動作しない。AlmaLinux ではもう一工夫必要らしい。
+:::
+
+```bash
+# 1. pipx のインストール
+sudo dnf install -y pipx python3-gobject
+
+# 2. pipx で guake をインストール
+pipx install --system-site-packages guake
+
+# 3. 実行パスを通す（初回のみ）
+pipx ensurepath
+```
+
+
+---
+
+## GUI アプリ
 
 ### [LibreOffice](https://ja.libreoffice.org/)
+
+#### RPM ファイルを使ったインストール
 
 - ダウンロード
 
@@ -57,16 +151,30 @@ Alma Linux メモ
 
     ```bash
     # アーカイブファイルを展開
-    tar zxvf LibreOffice_26.2.3_Linux_x86-64_rpm.tar.gz
-    tar zxvf LibreOffice_26.2.3_Linux_x86-64_rpm_langpack_ja.tar.gz
-    tar zxvf LibreOffice_26.2.3_Linux_x86-64_rpm_helppack_ja.tar.gz
+    tar zxvf LibreOffice_26.2.4_Linux_x86-64_rpm.tar.gz
+    tar zxvf LibreOffice_26.2.4_Linux_x86-64_rpm_langpack_ja.tar.gz
+    tar zxvf LibreOffice_26.2.4_Linux_x86-64_rpm_helppack_ja.tar.gz
     # インストール
     find ./ -name "*.rpm" -exec sudo dnf install -y {} +
     ```
 
+#### Flatpak を使ったインストール
+
+Flathub URL: https://flathub.org/ja/apps/org.libreoffice.LibreOffice
+
+```bash
+# LibreOffice 本体
+sudo flatpak install flathub org.libreoffice.LibreOffice
+# スペルチェッカー (アドオン)
+sudo flatpak install flathub org.libreoffice.LibreOffice.BundledExtension.Voikko
+```
+
+
 ### テキストエディタ
 
 - VSCode
+
+    **RPM ファイルを使ったインストール**
 
     ```bash
     wget "https://code.visualstudio.com/sha/download?build=stable&os=linux-rpm-x64" \
@@ -74,7 +182,51 @@ Alma Linux メモ
     sudo dnf install -y code.rpm
     ```
 
+    **Flatpak を使ったインストール**
+
+    ```bash
+    sudo flatpak install flathub com.visualstudio.code
+    ```  
+
 ### ブラウザ
+
+- Google Chrome
+
+    **RPM ファイルを使ったインストール**
+
+    ```bash
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+    sudo dnf install -y google-chrome-stable_current_x86_64.rpm
+    ```
+
+    **Flatpak を使ったインストール**
+
+    ```bash
+    sudo flatpak install flathub com.google.Chrome
+    ```
+
+- Brave
+
+    **RPM ファイルを使ったインストール**
+
+    ```bash
+    sudo dnf install dnf-plugins-core
+    sudo dnf config-manager \
+        --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
+    sudo dnf install brave-browser
+    ```
+
+    **Flatpak を使ったインストール**
+
+    ```bash
+    sudo flatpak install flathub com.brave.Browser
+    ```
+
+- Microsoft Edge
+
+    ```bash 
+    sudo flatpak install flathub com.microsoft.Edge
+    ```
 
 - Chromium
 
@@ -84,8 +236,16 @@ Alma Linux メモ
 
 - thunderbird
 
+    **RPM ファイルを使ったインストール**
+
     ```bash
     sudo dnf install -y thunderbird
+    ```
+
+    **Flatpak を使ったインストール**
+
+    ```bash
+    sudo flatpak install flathub org.mozilla.thunderbird
     ```
 
 ### 画像
@@ -116,6 +276,23 @@ EPEL リポジトリや CRB（Code Ready Builder）に gimp や shotwell は登�
     ```bash
     sudo flatpak install flathub org.gnome.Shotwell
     ```
+
+### 動画
+
+- VLC
+
+    ```bash
+    sudo flatpak install flathub org.videolan.VLC
+    ```
+
+## プログラミング言語
+
+### C/C++
+
+```bash
+sudo dnf groupinstall "Development Tools" -y
+sudo dnf install -y g++ cmake gdb
+```
 
 ---
 

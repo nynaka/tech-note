@@ -9,6 +9,10 @@ description: podmanの基本的な使い方の解説です。
 podman
 ===
 
+:::note
+Alma Linux10 から Docker ではなく Podman が推奨のコンテナエンジンになったみたいです。
+:::
+
 ## 1. podman のインストール方法
 
 ### Debian / Ubuntu (apt)
