@@ -20,30 +20,50 @@ sudo apt install -y clamav clamav-daemon
 ### Fedora / Alma / Rocky
 
 ```bash
-sudo dnf install -y clamav clamav-daemon
+sudo dnf install -y clamav clamav-freshclam clamav-update \
+        clamd
 ```
 
 
 ## clamav 関連プロセスの起動
 
-```bash title="clamav-daemon の起動"
-sudo systemctl start clamav-daemon.service
-sudo systemctl enable clamav-daemon.service
-```
+### Debian / Ubuntu
 
-```bash title="自動ウイルス定義更新サービスの起動設定"
-sudo systemctl start clamav-freshclam.service 
-sudo systemctl enable clamav-freshclam.service
-```
+- clamav-daemon の起動
 
-## ウイルス定義の手動更新
+    ```bash
+    sudo systemctl start clamav-daemon.service
+    sudo systemctl enable clamav-daemon.service
+    ```
 
-clamav-freshclam.service が動作中の場合は一時停止してから実行する。
+- 自動ウイルス定義更新サービスの起動設定
+
+    ```bash
+    sudo systemctl start clamav-freshclam.service 
+    sudo systemctl enable clamav-freshclam.service
+    ```
+
+- ウイルス定義の手動更新
+
+    clamav-freshclam.service が動作中の場合は一時停止してから実行する。
+
+    ```bash
+    sudo systemctl stop clamav-freshclam.service
+    sudo freshclam
+    sudo systemctl start clamav-freshclam.service
+    ```
+
+### Fedora / Alma / Rocky
 
 ```bash
-sudo systemctl stop clamav-freshclam.service
+# ウイルス定義の手動更新
 sudo freshclam
-sudo systemctl start clamav-freshclam.service
+
+# デーモンの起動
+sudo systemctl enable --now clamd@scan
+
+# 自動更新の起動（clamav-freshclam で通らない場合は freshclam を試してください）
+sudo systemctl enable --now clamav-freshclam
 ```
 
 
