@@ -108,6 +108,40 @@ sudo firewall-cmd --list-all
 
 ---
 
+## スリープ (サスペンドやハイバーネート) の切り替え
+
+- 有効化
+
+    ```bash
+    sudo systemctl unmask \
+        sleep.target \
+        suspend.target \
+        hibernate.target \
+        hybrid-sleep.target
+    ```
+
+- 無効化
+
+    ```bash
+    sudo systemctl mask \
+        sleep.target \
+        suspend.target \
+        hibernate.target \
+        hybrid-sleep.target
+    ```
+
+- 状態確認
+
+    ```bash
+    sudo systemctl status \
+        sleep.target \
+        suspend.target \
+        hibernate.target \
+        hybrid-sleep.target
+    ```
+
+---
+
 ## CUI アプリ
 
 ### Guake
