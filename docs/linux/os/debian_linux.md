@@ -72,3 +72,49 @@ sudo の設定は、直接設定ファイルを編集する手もありますが
 3. 保存
     - nano の場合（標準）: Ctrl + O を押したあと Enter で保存し、Ctrl + X で閉じます。
     - vi / vim の場合: :wq と入力して Enter を押します。
+
+---
+
+## その他
+
+### VMware tools
+
+- インストール
+
+    ```bash
+    sudo apt install -y open-vm-tools open-vm-tools-desktop
+    ```
+
+- 起動設定
+
+    ```bash
+    sudo systemctl start open-vm-tools
+    sudo systemctl enable open-vm-tools
+    ```
+
+- 共有フォルダのマウント
+
+    **/etc/fstab 設定例**
+
+    ```text
+    .host:/ /mnt/hgfs fuse.vmhgfs-fuse allow_other,auto_unmount,defaults 0 0
+    ```
+
+    マウントポイントは **/mnt/hgfs** を想定しています。事前に、
+
+    ```bash
+    sudo mkdir -p /mnt/hgfs
+    ```
+
+    を実行するなどして、マウントポイントを作成しておいてください。
+
+    :::note
+    VMware Workstation の共有フォルダを使用するためには、事前に仮想マシンの設定で共有フォルダを設定しておく必要があります。
+    :::
+
+    ```bash
+    # systemctl の再読み込み
+    sudo systemctl daemon-reload
+    # マウント
+    mount -a
+    ```
