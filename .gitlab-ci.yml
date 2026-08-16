@@ -1,11 +1,31 @@
-image: node:24
+stages:
+  - build_pages
+  - build_container
+
+# 1. 静的サイトのビルド＆Pages公開
 pages:
-  stage: deploy
+  stage: build_pages
+  image: node:24
   script:
     - npm install
     - npm run build -- --out-dir public
   artifacts:
     paths:
       - public
+  only:
+    - main
+
+# 2. Podmanを使ったコンテナイメージのビルド＆プッシュ
+build_image:
+  stage: build_container
+  image: quay.io/podman/stable:latest
+  variables:
+    STORAGE_DRIVER: "vfs"
+    BUILDAH_ISOLATION: "chroot"
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | podman login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+  script:
+    - podman build -t "$CI_REGISTRY_IMAGE:latest" .
+    - podman push "$CI_REGISTRY_IMAGE:latest"
   only:
     - main
