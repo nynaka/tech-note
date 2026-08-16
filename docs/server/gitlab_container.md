@@ -85,7 +85,14 @@ GitLab コンテナ構築時にサーバ証明書も用意してくれるので�
     ```bash
     sudo cp privateca.crt /usr/local/share/ca-certificates/privateca.crt
     sudo update-ca-certificates
-    この後、/etc/ssl/certs/privateca.pem が存在するはずです。
+    # この後、/etc/ssl/certs/privateca.pem が存在するはずです。
+    ```
+
+- AlmaLinux / RHEL 系
+
+    ```bash
+    sudo cp privateca.crt /etc/pki/ca-trust/source/anchors/privateca.crt
+    sudo update-ca-trust
     ```
 
 - Python (Requests ライブラリだけかもですが)
