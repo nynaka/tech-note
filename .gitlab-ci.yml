@@ -12,11 +12,11 @@ pages:
   artifacts:
     paths:
       - public
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
 
-# 2. Podmanを使ったコンテナイメージのビルド＆プッシュ
-build_image:
+# 2-A. Podmanを使ったコンテナイメージのビルド＆プッシュ
+build_image_podman:
   stage: build_container
   image: quay.io/podman/stable:latest
   variables:
@@ -27,5 +27,22 @@ build_image:
   script:
     - podman build -t "$CI_REGISTRY_IMAGE:latest" .
     - podman push "$CI_REGISTRY_IMAGE:latest"
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" && $CI_REGISTRY != "" && $CI_REGISTRY != null
+
+# 2-B. Dockerを使ったコンテナイメージのビルド＆プッシュ (Docker-in-Docker)
+build_image_docker:
+  stage: build_container
+  image: docker:27-cli
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+  script:
+    - docker build -t "$CI_REGISTRY_IMAGE:latest" .
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" && $CI_REGISTRY != "" && $CI_REGISTRY != null
+      when: manual # 必要に応じて手動実行、またはPodmanと切り替えて使用
