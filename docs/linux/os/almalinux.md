@@ -158,6 +158,43 @@ sudo firewall-cmd --list-all
         hybrid-sleep.target
     ```
 
+    - GDM の自動サスペンド無効化
+
+        1. 設定ディレクトリを作成
+
+            ```bash
+            sudo mkdir -p /etc/dconf/db/gdm.d
+            ```
+
+        2. GDM の電源管理設定ファイルを作成
+
+            ```bash
+            sudo tee /etc/dconf/db/gdm.d/01-power <<EOF
+            [org/gnome/settings-daemon/plugins/power]
+            sleep-inactive-ac-timeout=0
+            sleep-inactive-ac-type='nothing'
+            sleep-inactive-battery-timeout=0
+            sleep-inactive-battery-type='nothing'
+            EOF
+            ```
+
+        3. dconf データベースを更新して設定を反映
+
+            ```bash
+            sudo dconf update
+            ```
+
+
+        4. GDM を再起動
+
+            :::warning
+            現在ログイン中のデスクトップ環境は強制ログアウトされる。
+            :::
+
+            ```bash
+            sudo systemctl restart gdm
+            ```
+
 - 無効化
 
     ```bash
