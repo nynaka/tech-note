@@ -126,26 +126,42 @@ sudo apt install -y isc-dhcp-server
 
 ### DHCP サーバの設定
 
-```diff title="/etc/dhcp/dhcpd.conf"
---- dhcpd.conf.origin   2025-11-29 16:12:55.603987434 +0900
-+++ dhcpd.conf  2025-11-29 16:15:38.507980958 +0900
-@@ -105,3 +105,15 @@
- #    range 10.0.29.10 10.0.29.230;
- #  }
- #}
-+
-+subnet 192.168.1.0 netmask 255.255.255.0 {
-+    range 192.168.1.101 192.168.1.200;
-+    option routers 192.168.1.1;
-+    option domain-name-servers 8.8.8.8, 8.8.4.4;
-+    #option rfc3442-classless-static-routes 24, 172,16,10, 192,168,1,10;
-+
-+    #host host1 {
-+    #    hardware ethernet xx:xx:xx:xx:xx:xx;
-+    #    fixed-address 192.168.1.xxx;
-+    #}
-+}
-```
+- /etc/default/isc-dhcp-server
+
+    ```diff
+    --- /tmp/isc-dhcp-server	2026-09-19 14:52:17.570335577 +0900
+    +++ /etc/default/isc-dhcp-server	2026-09-19 14:52:52.042334207 +0900
+    @@ -14,5 +14,5 @@
+     
+     # On what interfaces should the DHCP server (dhcpd) serve DHCP requests?
+     #	Separate multiple interfaces with spaces, e.g. "eth0 eth1".
+    -INTERFACESv4=""
+    +INTERFACESv4="enp3s0"    # DHCP サーバとして振る舞うインターフェースを指定する
+     INTERFACESv6=""
+    ```
+
+- /etc/dhcp/dhcpd.conf
+
+    ```diff
+    --- dhcpd.conf.origin   2025-11-29 16:12:55.603987434 +0900
+    +++ dhcpd.conf  2025-11-29 16:15:38.507980958 +0900
+    @@ -105,3 +105,15 @@
+     #    range 10.0.29.10 10.0.29.230;
+     #  }
+     #}
+    +
+    +subnet 192.168.1.0 netmask 255.255.255.0 {
+    +    range 192.168.1.101 192.168.1.200;
+    +    option routers 192.168.1.1;
+    +    option domain-name-servers 8.8.8.8, 8.8.4.4;
+    +    #option rfc3442-classless-static-routes 24, 172,16,10, 192,168,1,10;
+    +
+    +    #host host1 {
+    +    #    hardware ethernet xx:xx:xx:xx:xx:xx;
+    +    #    fixed-address 192.168.1.xxx;
+    +    #}
+    +}
+    ```
 
 ### DHCP サーバの自動起動設定
 
