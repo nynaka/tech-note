@@ -236,7 +236,6 @@ pipx install --system-site-packages guake
 pipx ensurepath
 ```
 
-
 ---
 
 ## GUI アプリ
@@ -296,6 +295,18 @@ sudo flatpak install flathub org.libreoffice.LibreOffice.BundledExtension.Voikko
     ```bash
     sudo flatpak install flathub com.visualstudio.code
     ```  
+
+- Sublime Text
+
+    ```bash
+    # Stable for Fedora 41/dnf5 or newer
+    sudo dnf config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
+    # Update dnf and install Sublime Text
+    sudo dnf install sublime-text
+    ```
+
+    [dnf インストール手順](https://www.sublimetext.com/docs/linux_repositories.html#dnf) には GPG key のインストール手順がありますが、インストールエラーのまま省略しても大丈夫らしい。
+
 
 ### ブラウザ
 
@@ -357,7 +368,7 @@ sudo flatpak install flathub org.libreoffice.LibreOffice.BundledExtension.Voikko
     sudo flatpak install flathub org.mozilla.thunderbird
     ```
 
-### 画像
+### 画像・音楽
 
 EPEL リポジトリや CRB（Code Ready Builder）に gimp や shotwell は登録されなくなったらしい？？
 
@@ -384,6 +395,12 @@ EPEL リポジトリや CRB（Code Ready Builder）に gimp や shotwell は登�
 
     ```bash
     sudo flatpak install flathub org.gnome.Shotwell
+    ```
+
+- Rhythmbox
+
+    ```bash
+    sudo flatpak install flathub org.gnome.Rhythmbox3
     ```
 
 ### 動画
