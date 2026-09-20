@@ -217,6 +217,37 @@ sudo firewall-cmd --list-all
 
 ---
 
+## Gnome 関連設定
+
+### macOS 風 Dock
+
+- インストール
+
+    ```bash
+    sudo dnf install \
+        gnome-shell-extension-dash-to-dock
+    ```
+
+    この再ログインしてから有効になる。
+
+    サイログイン後、
+
+    ```bash
+    gnome-extensions list | grep dash-to-dock
+    ```
+
+    で **dash-to-dock@micxgx.gmail.com** が表示されればインストールされている。
+
+- 有効化
+
+    ```bash
+    gnome-extensions enable dash-to-dock@micxgx.gmail.com
+    ```
+
+    3x3 アイコンのところで右クリック ⇒ 設定 から Dock の細かい設定がが可能です。
+
+---
+
 ## CUI アプリ
 
 ### Guake
