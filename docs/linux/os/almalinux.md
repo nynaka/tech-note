@@ -217,6 +217,27 @@ sudo firewall-cmd --list-all
 
 ---
 
+## CUI アプリ
+
+### Guake
+
+:::warning
+下記の手順ではインストールできるが動作しない。AlmaLinux ではもう一工夫必要らしい。
+:::
+
+```bash
+# 1. pipx のインストール
+sudo dnf install -y pipx python3-gobject
+
+# 2. pipx で guake をインストール
+pipx install --system-site-packages guake
+
+# 3. 実行パスを通す（初回のみ）
+pipx ensurepath
+```
+
+---
+
 ## Gnome 関連設定
 
 ### macOS 風 Dock
@@ -246,26 +267,22 @@ sudo firewall-cmd --list-all
 
     3x3 アイコンのところで右クリック ⇒ 設定 から Dock の細かい設定がが可能です。
 
----
+- Dock アイコンクリック時の動作変更
 
-## CUI アプリ
+    GUI では Dash to Dock の 「動作（Behavior）」タブで変更できます。  
+    コマンドで変更する場合は下記。
 
-### Guake
+    - プレビュー表示
 
-:::warning
-下記の手順ではインストールできるが動作しない。AlmaLinux ではもう一工夫必要らしい。
-:::
+        ```bash
+        gsettings set org.gnome.shell.extensions.dash-to-dock click-action 'previews'
+        ```
+    
+    - 最小化またはプレビューを表示する場合 (起動アプリが1個の時は最小化、複数の時はプレビュー)  
 
-```bash
-# 1. pipx のインストール
-sudo dnf install -y pipx python3-gobject
-
-# 2. pipx で guake をインストール
-pipx install --system-site-packages guake
-
-# 3. 実行パスを通す（初回のみ）
-pipx ensurepath
-```
+        ```bash
+        gsettings set org.gnome.shell.extensions.dash-to-dock click-action 'minimize-or-previews'
+        ```
 
 ---
 
