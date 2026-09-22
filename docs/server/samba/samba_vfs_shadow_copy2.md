@@ -265,3 +265,27 @@ Windows エクスプローラーの `以前のバージョン` に表示され�
     ```
 
     一応、cron の再起動していますが、/etc/crontab を編集した時点で有効になっているような動きをしています。
+
+## その他
+
+### Linux クライアントから Samba 共有フォルダをマウントする
+
+- マウントポイント作成
+
+    ```bash
+    sudo mkdir /mnt/share
+    ```
+
+- 共有フォルダのマウント
+
+    ```bash
+    sudo mount \
+        -t cifs //server_ip_or_host/share_name /mnt/share \
+        -o username=samba_user,uid=$(id -u),gid=$(id -g)
+    ```
+
+- /etc/fstab に設定する場合
+
+    ```text
+    //server_ip_or_host/share_name  /mnt/share  cifs  credentials=/etc/samba_credentials,uid=1000,gid=100,_netdev,nofail  0  0
+    ```
