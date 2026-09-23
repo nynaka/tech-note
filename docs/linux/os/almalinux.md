@@ -330,19 +330,31 @@ sudo flatpak install flathub org.libreoffice.LibreOffice.BundledExtension.Voikko
 
 - VSCode
 
-    **RPM ファイルを使ったインストール**
+    - RPM ファイルを使ったインストール
 
-    ```bash
-    wget "https://code.visualstudio.com/sha/download?build=stable&os=linux-rpm-x64" \
-        -O code.rpm
-    sudo dnf install -y code.rpm
-    ```
+        ```bash
+        wget "https://code.visualstudio.com/sha/download?build=stable&os=linux-rpm-x64" \
+            -O code.rpm
+        sudo dnf install -y code.rpm
+        ```
 
-    **Flatpak を使ったインストール**
+    - dnf リポジトリ
 
-    ```bash
-    sudo flatpak install flathub com.visualstudio.code
-    ```  
+        ```bash
+        # Microsoftの公開鍵インポート
+        sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+        # VSCode用のリポジトリ設定ファイル作成
+        echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
+        # VSCodeのインストール
+        dnf check-update
+        sudo dnf install code
+        ```
+
+    - Flatpak を使ったインストール
+
+        ```bash
+        sudo flatpak install flathub com.visualstudio.code
+        ```
 
 - Sublime Text
 
