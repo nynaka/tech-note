@@ -77,3 +77,11 @@ pages:
     - main
 " > .gitlab-ci.yml
 ```
+
+### github から clone して起動するまで
+
+```bash
+git clone repository.git
+npm install    # これやらないとエラーになる
+npm start
+```

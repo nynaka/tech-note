@@ -6,7 +6,7 @@ description: Debian/Ubuntu 系および Fedora/RHEL 系 Linux への Docker Engi
 docker
 ===
 
-:::note ファイアウォールに関する注意事項
+:::note[ファイアウォールに関する注意事項]
 - ufw や firewalld を使用している場合、Docker はコンテナのポートを公開する際にファイアウォールのルールをバイパスします。  
   詳細は [Docker and ufw](https://docs.docker.com/engine/network/packet-filtering-firewalls/#docker-and-ufw) を参照してください。
 - Docker は iptables-nft および iptables-legacy のみに対応しています。nft で作成されたファイアウォールルールはサポートされません。
