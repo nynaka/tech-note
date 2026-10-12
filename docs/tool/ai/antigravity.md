@@ -50,6 +50,20 @@ agy
 /logout
 ```
 
+## 便利な使い方
+
+corrective_plan.md に改修する内容や、改修後どんなテストを実施するのか等、やるべきことを事前に用意しておき、 `--dangerously-skip-permissions` 付きで実行することで、改修途中のファイル追加・削除、コマンド実行の許可を求めずに改修作業を一気通貫で実行します。
+
+意図しない変更をされないために `--sandbox` を指定したり、無限待ちのようになったら、ある程度待って打ち切らせるために `--print-timeout 30m` （この例では30分待ち）を指定します。
+
+```bash
+agy -p "$(cat ./corrective_plan.md)" \
+    --dangerously-skip-permissions \
+    --sandbox \
+    --print-timeout 30m \
+    --output-format json
+```
+
 ## 参考サイト
 
 - [https://github.com/google-antigravity/antigravity-cli](https://github.com/google-antigravity/antigravity-cli)
