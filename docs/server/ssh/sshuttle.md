@@ -1,7 +1,7 @@
 ---
 title: sshuttle（VPN over SSH）
 description: sshuttle を使って SSH サーバ経由でアプリケーションサーバのサブネットに接続する設定例です
-sidebar_position: 4
+sidebar_position: 3
 #id: home
 #slug: /my-custom-url
 ---

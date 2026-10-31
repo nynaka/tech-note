@@ -1,7 +1,7 @@
 ---
 title: SSH ProxyJump / ProxyCommand
 description: 踏み台サーバを経由した SSH 接続の設定例です
-sidebar_position: 1
+sidebar_position: 2
 #id: home
 #slug: /my-custom-url
 ---

@@ -1,7 +1,7 @@
 ---
 title: SSH ポートフォワーディング
 description: SSH トンネルを使って踏み台サーバ経由でアプリケーションサーバに接続する設定例です
-sidebar_position: 3
+sidebar_position: 1
 #id: home
 #slug: /my-custom-url
 ---
