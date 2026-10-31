@@ -1,7 +1,9 @@
 Linux Mint
 ===
 
-## 日本語入力
+## 設定
+
+### 日本語入力
 
 ```bash
 sudo apt install -y \
@@ -9,6 +11,33 @@ sudo apt install -y \
     fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 \
     fcitx5-frontend-qt5 kde-config-fcitx5
 ```
+
+### swappiness
+
+- swappiness の設定
+
+    ```bash
+    echo "vm.swappiness = 1" | sudo tee /etc/sysctl.d/99-swappiness.conf
+    sudo sysctl --system
+    ```
+
+- swappiness の設定値確認
+
+    ```bash
+    sysctl vm.swappiness
+    # または
+    cat /proc/sys/vm/swappiness
+    ```
+
+- 設定値の意味
+
+    - `vm.swappiness` は、カーネルがメモリページをどの程度積極的にスワップ領域へ退避（スワップアウト）させるかを制御するパラメータ（0〜100）です。
+    - **`60`（デフォルト値）**:
+        - メモリとスワップの利用バランスを取る標準的な設定です。
+        - カーネルがメモリ解放（ページ回収）を行う際、スキャン比率は内部的に `ファイルキャッシュ : スワップ = (200 - swappiness) : swappiness` で計算されます。`swappiness = 60` の場合は `140 : 60`（約 7:3）の比率となり、ファイルキャッシュの破棄を優先しつつ適度にスワップアウトも行います（※「メモリ残量が60%になったら発動」という閾値ではありません）。
+    - **`0` より `1` を設定すべき理由**:
+        - **`0`**: カーネル 3.5 以降では、空きメモリとキャッシュが完全に枯渇するまでスワップをほぼ完全に停止します。これによりキャッシュが過剰に破棄されてディスク I/O 性能が低下したり、メモリ不足時に OOM Killer が突発的に作動してプロセスが強制終了されるリスクが高まります。
+        - **`1`**: 通常時はスワップアウトを極力回避しながらも、完全なメモリ枯渇時にはスワップを許可して OOM（Out of Memory）を回避する安全弁を残すことができます。そのため、スワップを最小限に抑えたい環境では `0` ではなく `1` を設定することが推奨されます。
 
 ---
 

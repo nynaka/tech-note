@@ -24,6 +24,7 @@ sudo dnf install -y clamav clamav-freshclam clamav-update \
         clamd
 ```
 
+---
 
 ## clamav 関連プロセスの起動
 
@@ -66,6 +67,7 @@ sudo systemctl enable --now clamd@scan
 sudo systemctl enable --now clamav-freshclam
 ```
 
+---
 
 ## 手動スキャン
 
@@ -115,6 +117,7 @@ sudo clamdscan \
     --log="/var/clamav/history/$(date +%Y%m%d-%H%M%S).log" /home
 ```
 
+---
 
 ## GUI ツール
 
@@ -126,6 +129,7 @@ sudo apt install -y clamtk
 sudo dnf install -y clamtk
 ```
 
+---
 
 ## リアルタイムスキャン
 
@@ -137,7 +141,7 @@ sudo dnf install -y clamtk
 
 - 差分（ここでは、patch.txt という名前で保存するものとする）
 
-    ```diff title="patch.txt"
+    ```diff
     --- clamd.conf.orig     2022-03-20 23:02:12.795136761 +0000
     +++ clamd.conf  2022-03-20 23:08:03.900661995 +0000
     @@ -3,11 +3,11 @@
@@ -187,7 +191,8 @@ sudo dnf install -y clamtk
 
 ### 起動スクリプト
 
-```ini title="/etc/systemd/system/clamonacc.service"
+```ini
+sudo tee /etc/systemd/system/clamonacc.service > /dev/null << 'EOF'
 [Unit]
 Description=ClamAV On Access Scanner
 Requires=clamav-daemon.service
@@ -201,6 +206,7 @@ ExecStart=/usr/sbin/clamonacc -F --config-file=/etc/clamav/clamd.conf --log=/var
 
 [Install]
 WantedBy=multi-user.target
+EOF
 ```
 
 ### ウイルス検知したファイルの移動先ディレクトリ作成
