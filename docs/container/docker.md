@@ -18,6 +18,7 @@ docker
 | ---------------------- | ----------------------------------------------------------- |
 | Debian                 | Trixie 13 / Bookworm 12 / Bullseye 11                       |
 | Ubuntu                 | Resolute 26.04 / Questing 25.10 / Noble 24.04 / Jammy 22.04 |
+| Mint                   | 22.3 (Nobleベース)                                          |
 
 アーキテクチャ: x86_64 (amd64)、armhf (arm/v7)、arm64、ppc64le、s390x
 
@@ -97,6 +98,24 @@ sudo apt remove \
         EOF
 
         sudo apt update
+        ```
+
+    - Linux Mint 22
+
+        Linux Mint は Ubuntu Linux ベースなので、ほぼ Ubuntu Linux なのですが、1 行だけ変更が必要のようです。
+
+        ```diff
+        --- ubuntu      2026-11-03 07:45:39.167776325 +0900
+        +++ linuxmint   2026-11-03 07:45:50.379773466 +0900
+        @@ -11,7 +11,7 @@
+         sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+         Types: deb
+         URIs: https://download.docker.com/linux/ubuntu
+        -Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+        +Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$UBUNTU_CODENAME}")
+         Components: stable
+         Architectures: $(dpkg --print-architecture)
+         Signed-By: /etc/apt/keyrings/docker.asc
         ```
 
 2. Docker パッケージのインストール
