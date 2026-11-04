@@ -73,15 +73,16 @@ chkrootkit はデータベースの事前作成なしでインストール直後
 
 Debian / Ubuntu では `/etc/chkrootkit/chkrootkit.conf`（環境によっては `/etc/chkrootkit.conf`）で日次スキャンの有効化や実行時オプションを設定できます。
 
-```ini title="/etc/chkrootkit/chkrootkit.conf"
-# 日次 Cron スキャンを有効化する場合は "true" に設定
+```ini
+echo '# 日次 Cron スキャンを有効化する場合は "true" に設定
 RUN_DAILY="true"
 
 # 日次スキャン時のオプション（-q: 警告・感染疑いのみ出力）
 RUN_DAILY_OPTS="-q"
 
 # 前日のスキャン結果との差分のみを報告する場合は "true" に設定
-DIFF_MODE="false"
+DIFF_MODE="false"' \
+| sudo tee /etc/chkrootkit/chkrootkit.conf > /dev/null
 ```
 
 ### 誤検知の除外設定 (`/etc/chkrootkit.ignore`)
@@ -89,10 +90,11 @@ DIFF_MODE="false"
 Linux の標準パッケージが `/lib` や `/usr/lib` 等に配置する正常なドットファイル（例: `.build-id` や設定ファイル）が `Suspect files` として報告されることがあります。  
 Debian / Ubuntu パッケージ版の chkrootkit では、`/etc/chkrootkit.ignore` に正規表現（`grep -E` 形式）を記述することで既知の誤検知をフィルタリングできます。
 
-```text title="/etc/chkrootkit.ignore"
-# 正常なパッケージが生成するドットファイル・ディレクトリを除外する例
+```text
+echo '# 正常なパッケージが生成するドットファイル・ディレクトリを除外する例
 ^/usr/lib/debug/\.build-id$
-^/lib/modules/.*/vdso/\..*\.o\.cmd$
+^/lib/modules/.*/vdso/\..*\.o\.cmd$' \
+| sudo tee /etc/chkrootkit.ignore > /dev/null
 ```
 
 ---
@@ -105,7 +107,7 @@ Debian / Ubuntu パッケージ版の chkrootkit では、`/etc/chkrootkit.ignor
 
 ### システムスキャンの実行
 
-```bash title="システムスキャンの実行"
+```bash
 # システム全体を通常モードでスキャン
 sudo chkrootkit
 
@@ -128,7 +130,7 @@ sudo chkrootkit -q
 
 - 特定のテストのみを実行する例
 
-    ```bash title="個別テストの実行"
+    ```bash
     # 利用可能なテスト項目の一覧を確認
     sudo chkrootkit -l
 
@@ -157,7 +159,7 @@ sudo chkrootkit -q
 
     正常な項目を省略して注意が必要な出力のみを確認する場合は `-q` を使用します。
 
-    ```bash title="異常項目のみを抽出してスキャン"
+    ```bash
     sudo chkrootkit -q
     ```
 
@@ -179,13 +181,15 @@ sudo chkrootkit -q
 
     - **`PACKET SNIFFER(...)` が表示された場合**:  
       DHCP クライアント、`NetworkManager`、`systemd-networkd`、`tcpdump`、`fail2ban`、または Docker / 仮想ブリッジなどがソケットを開いている場合に検出されます。表示されているプロセス名と PID が正規のシステムサービスであるかを確認します。
-      ```bash title="対象プロセスの確認"
+
+      ```bash
       ps -fp 812
       ```
 
     - **`The following suspicious files and directories were found` が表示された場合**:  
       `/usr/lib` や `/tmp` 配下の隠しファイル・ディレクトリが表示されます。どのパッケージに属するファイルかを `dpkg -S` または `rpm -qf` で確認します。
-      ```bash title="ファイルの所属パッケージ確認"
+
+      ```bash
       # Debian / Ubuntu の場合
       dpkg -S /usr/lib/debug/.build-id
 
@@ -198,17 +202,18 @@ sudo chkrootkit -q
 もし検査対象システムの `ps` や `ls`、`find` 自体がルートキットによって改ざんされている疑いがある場合、稼働中の OS 上のコマンドをそのまま使うとルートキットが自身を隠蔽する可能性があります。  
 その場合は、レスキューメディア等から対象ディスクを `/mnt/target` にマウントし、`-r`（ルート指定）と `-p`（信頼できるバイナリパス指定）を組み合わせて検査します。
 
-```bash title="外部マウントしたシステムの検査例"
+```bash
 # 信頼できるホスト側のコマンドパス (-p) を指定し、/mnt/target (-r) を検査
 sudo chkrootkit -p /bin:/usr/bin:/sbin:/usr/sbin -r /mnt/target
 ```
 
-### 3. Cron による定期スキャンとメール・ログ記録（RHEL 系など）
+### 3. Cron による定期スキャンとログ記録（RHEL 系など）
 
 RHEL 系など標準で日次スクリプトが含まれない環境や、独自にログをアーカイブしたい場合は Cron スクリプトを作成します。
 
-```bash title="/etc/cron.daily/chkrootkit-scan"
-#!/bin/sh
+```bash
+# 定期スキャンスクリプト作成
+echo '#!/bin/sh
 set -eu
 
 LOG_DIR="/var/log/chkrootkit"
@@ -222,10 +227,10 @@ chmod 700 "${LOG_DIR}"
 /usr/sbin/chkrootkit -q > "${LOG_FILE}" 2>&1 || true
 
 # 30 日以上経過した古いログを削除
-find "${LOG_DIR}" -type f -name "chkrootkit-*.log" -mtime +30 -delete
-```
+find "${LOG_DIR}" -type f -name "chkrootkit-*.log" -mtime +30 -delete' \
+| sudo tee /etc/cron.daily/chkrootkit-scan > /dev/null
 
-```bash title="実行権限の付与"
+# 実行権限の付与
 sudo chmod 750 /etc/cron.daily/chkrootkit-scan
 ```
 
@@ -253,25 +258,29 @@ flowchart TD
 
     `INFECTED` となった特定のテスト項目に対して `-x` や `-d` を付与して再実行し、どのファイルや文字列がシグネチャに一致したのかを確認します。
 
-    ```bash title="特定のテスト項目を詳細モードで再検査（例: ps と lkm）"
-    sudo chkrootkit -x -d ps lkm
-    ```
+    - 特定のテスト項目を詳細モードで再検査（例: ps と lkm）
+
+        ```bash
+        sudo chkrootkit -x -d ps lkm
+        ```
 
 2. **パッケージ管理システムによるバイナリ整合性の検証**
 
     システムコマンド（`ps`, `ls`, `sshd` 等）が `INFECTED` と報告された場合、ディストリビューションのパッケージデータベースが持つ正規のハッシュ値と一致するかを確認します。
 
-    ```bash title="パッケージの改ざんチェック"
-    # Debian / Ubuntu の場合（変更されたパッケージファイルを一覧表示）
-    sudo dpkg -V
-    # debsums が導入されている場合はより詳細なハッシュ検証が可能
-    sudo debsums -c
+    - パッケージの改ざんチェック
 
-    # RHEL / AlmaLinux / Rocky / Fedora の場合（例: /usr/bin/ps の検証）
-    sudo rpm -Vf /usr/bin/ps
-    # システム全体の全パッケージを検証する場合
-    sudo rpm -Va
-    ```
+        ```bash
+        # Debian / Ubuntu の場合（変更されたパッケージファイルを一覧表示）
+        sudo dpkg -V
+        # debsums が導入されている場合はより詳細なハッシュ検証が可能
+        sudo debsums -c
+
+        # RHEL / AlmaLinux / Rocky / Fedora の場合（例: /usr/bin/ps の検証）
+        sudo rpm -Vf /usr/bin/ps
+        # システム全体の全パッケージを検証する場合
+        sudo rpm -Va
+        ```
 
     :::note[`dpkg -V` / `rpm -V` の出力の見方]
     出力結果に `..5......`（MD5 ハッシュの不一致）や `S.5....T.`（ファイルサイズ・ハッシュ・タイムスタンプの不一致）がバイナリファイルに対して表示された場合は、パッケージ管理外でバイナリが書き換えられている可能性が極めて高い状態です。
@@ -281,24 +290,28 @@ flowchart TD
 
     `Possible LKM Trojan installed` が出力された場合、スキャン実行の瞬間に終了した短命プロセス（ビルド処理やコンテナ等）とのタイミング競合による誤検知のケースがあります。`chkproc` を直接複数回実行し、恒常的に隠蔽プロセスが存在するかを確認します。
 
-    ```bash title="chkproc バイナリによる隠蔽プロセスの直接確認"
-    # Debian / Ubuntu の場合（RHEL 系は /usr/lib64/chkrootkit/chkproc）
-    sudo /usr/lib/chkrootkit/chkproc -v -v
-    ```
+    - chkproc バイナリによる隠蔽プロセスの直接確認
+
+        ```bash
+        # Debian / Ubuntu の場合（RHEL 系は /usr/lib64/chkrootkit/chkproc）
+        sudo /usr/lib/chkrootkit/chkproc -v -v
+        ```
 
     特定の PID が報告された場合は、`/proc/<PID>/` から実行ファイルの実体や開いている通信ポートを確認します。
 
-    ```bash title="不審な PID の実体調査（例: PID 12345）"
-    # 実行ファイルへのシンボリックリンクと作業ディレクトリを確認
-    sudo ls -l /proc/12345/exe /proc/12345/cwd
+    - 不審な PID の実体調査（例: PID 12345）
 
-    # プロセスに紐づく環境変数や起動引数を確認
-    sudo strings /proc/12345/environ
-    sudo tr '\0' ' ' < /proc/12345/cmdline; echo
+        ```bash
+        # 実行ファイルへのシンボリックリンクと作業ディレクトリを確認
+        sudo ls -l /proc/12345/exe /proc/12345/cwd
 
-    # プロセスが開いているファイルとネットワーク接続を確認
-    sudo lsof -p 12345
-    ```
+        # プロセスに紐づく環境変数や起動引数を確認
+        sudo strings /proc/12345/environ
+        sudo tr '\0' ' ' < /proc/12345/cmdline; echo
+
+        # プロセスが開いているファイルとネットワーク接続を確認
+        sudo lsof -p 12345
+        ```
 
 ### Step 2: 侵害が疑われる場合の初動対応（封じ込めと証拠保全）
 
@@ -320,26 +333,28 @@ flowchart TD
 
     システムを停止する前に、稼働中でしか取得できない情報を外部ストレージや調査用端末へ保存します。
 
-    ```bash title="揮発性情報の採取例（出力先は安全な外部マウント領域等を推奨）"
-    mkdir -p /mnt/usb/forensics
-    cd /mnt/usb/forensics
+    - 揮発性情報の採取例（出力先は安全な外部マウント領域等を推奨）
 
-    # ネットワーク接続・待受ポートとプロセスの対応を記録
-    sudo ss -tulpan > ss_tulpan.txt
-    sudo ip addr > ip_addr.txt
-    sudo ip route > ip_route.txt
+        ```bash
+        mkdir -p /mnt/usb/forensics
+        cd /mnt/usb/forensics
 
-    # 全プロセスツリーと開いているファイルを記録
-    sudo ps auxfww > ps_auxfww.txt
-    sudo lsof -nP > lsof.txt
+        # ネットワーク接続・待受ポートとプロセスの対応を記録
+        sudo ss -tulpan > ss_tulpan.txt
+        sudo ip addr > ip_addr.txt
+        sudo ip route > ip_route.txt
 
-    # ロードされているカーネルモジュール一覧を記録
-    sudo lsmod > lsmod.txt
+        # 全プロセスツリーと開いているファイルを記録
+        sudo ps auxfww > ps_auxfww.txt
+        sudo lsof -nP > lsof.txt
 
-    # ログイン中ユーザーと直近のログイン履歴を記録
-    w > w.txt
-    last -Faiwx > last.txt
-    ```
+        # ロードされているカーネルモジュール一覧を記録
+        sudo lsmod > lsmod.txt
+
+        # ログイン中ユーザーと直近のログイン履歴を記録
+        w > w.txt
+        last -Faiwx > last.txt
+        ```
 
 ### Step 3: 信頼できる外部環境からのフォレンジック調査と侵入経路の特定
 
@@ -351,7 +366,7 @@ flowchart TD
 
 1. **読み取り専用マウントと外部からの再スキャン**
 
-    ```bash title="調査用環境での読み取り専用マウントとスキャン"
+    ```bash
     # 対象ディスクを読み取り専用 (ro)・プログラム実行禁止 (noexec) でマウント
     sudo mkdir -p /mnt/target
     sudo mount -o ro,noexec,nodev,nosuid /dev/sdb1 /mnt/target
@@ -376,7 +391,9 @@ flowchart TD
     | **最近変更されたファイル** | ファイルシステム全体 | 侵入推定時刻前後に作成・変更（ctime/mtime）されたファイルの洗い出し |
     | **システム・認証ログ** | `var/log/auth.log`, `var/log/secure`, `var/log/journal/`, Web サーバーログ | 不正ログイン、ブルートフォース、Web アプリケーションの脆弱性悪用痕跡の確認 |
 
-    ```bash title="直近 7 日以内にステータス変更（ctime）されたファイルを検索する例"
+    - 直近 7 日以内にステータス変更（ctime）されたファイルを検索する例
+
+    ```bash
     sudo find /mnt/target -xdev -ctime -7 -ls > /mnt/usb/forensics/recent_changed_files.txt
     ```
 
