@@ -44,25 +44,25 @@ Btrfs（B-tree File System）は、Linux 向けのコピーオンライト（CoW
 - ファイルシステムのフォーマット
 
     ```bash
-    sudo mkfs.btrfs /dev/mapper/luks_sda3
+    sudo mkfs.btrfs /dev/mapper/luks_nvme0n1p3
     ```
 
 - デバイスの UUID 確認
 
     ```bash
-    sudo blkid /dev/mapper/luks_sda3
+    sudo blkid /dev/mapper/luks_nvme0n1p3
     ```
 
 - ファイルシステムのマウント
 
     ```bash
-    # マウントポイントの作成 (ここでは、/SDA とします)
-    sudo mkdir /SDA
+    # マウントポイントの作成 (ここでは、/NVME0N1 とします)
+    sudo mkdir /NVME0N1
 
     # ファイルシステムのマウント
     sudo mount -t btrfs \
         -o defaults,noatime,nodiratime,discard,compress=lzo \
-        /dev/mapper/luks_sda3 /SDA
+        /dev/mapper/luks_nvme0n1p3 /NVME0N1
     ```
 
     主なマウントオプション:
@@ -80,28 +80,28 @@ Btrfs（B-tree File System）は、Linux 向けのコピーオンライト（CoW
 
     ```bash
     # ホームディレクトリ用のサブボリューム
-    sudo btrfs subvolume create /SDA/home
+    sudo btrfs subvolume create /NVME0N1/home
     # Samba 公開ディレクトリ用のサブボリューム
-    sudo btrfs subvolume create /SDA/samba
+    sudo btrfs subvolume create /NVME0N1/samba
     ```
 
 - サブボリュームの一覧確認
 
     ```bash
-    sudo btrfs subvolume list /SDA
+    sudo btrfs subvolume list /NVME0N1
     ```
 
 - サブボリュームの詳細情報表示
 
     ```bash
-    sudo btrfs subvolume show /SDA/home
+    sudo btrfs subvolume show /NVME0N1/home
     ```
 
 - サブボリュームの削除
 
     ```bash
     # 削除前にアンマウントが必要
-    sudo btrfs subvolume delete /SDA/samba
+    sudo btrfs subvolume delete /NVME0N1/samba
     ```
 
 ## /etc/fstab の書式とマウント
@@ -109,18 +109,18 @@ Btrfs（B-tree File System）は、Linux 向けのコピーオンライト（CoW
     - /etc/fstab
 
         ```text
-        UUID=7d9c593b-7946-4c63-b62b-2643f722bc12  /SDA         btrfs  defaults,noatime,nodiratime,discard,compress=lzo              0 0
-        UUID=7d9c593b-7946-4c63-b62b-2643f722bc12  /home        btrfs  defaults,noatime,nodiratime,discard,compress=lzo,subvol=home  0 0
-        UUID=7d9c593b-7946-4c63-b62b-2643f722bc12  /samba/sda   btrfs  defaults,noatime,nodiratime,discard,compress=lzo,subvol=samba 0 0
+        UUID=uuuuuuuu-wwww-xxxx-yyyy-xxxxxxxxxxxx  /NVME0N1         btrfs  defaults,noatime,nodiratime,discard,compress=lzo              0 0
+        UUID=uuuuuuuu-wwww-xxxx-yyyy-xxxxxxxxxxxx  /home        btrfs  defaults,noatime,nodiratime,discard,compress=lzo,subvol=home  0 0
+        UUID=uuuuuuuu-wwww-xxxx-yyyy-xxxxxxxxxxxx  /samba/NVME0N1   btrfs  defaults,noatime,nodiratime,discard,compress=lzo,subvol=samba 0 0
         ```
 
     - マウントポイントに関する個別作業
 
         ```bash
         # home ディレクトリのコピー
-        sudo rsync -av /home/* /SDA/home/
+        sudo rsync -av /home/* /NVME0N1/home/
         # Samba 公開ディレクトリ
-        sudo mkdir -p /samba/sda
+        sudo mkdir -p /samba/NVME0N1
         ```
 
     - ファイルシステムのマウント
@@ -135,16 +135,16 @@ Btrfs（B-tree File System）は、Linux 向けのコピーオンライト（CoW
 - ファイルシステムの概要表示（デバイス一覧含む）
 
     ```bash
-    sudo btrfs filesystem show /SDA
+    sudo btrfs filesystem show /NVME0N1
     ```
 
 - ディスク使用量の確認
 
     ```bash
     # df ライクな表示（データ・メタデータ別）
-    sudo btrfs filesystem df /SDA
+    sudo btrfs filesystem df /NVME0N1
     # 詳細な使用量とフリースペースの表示
-    sudo btrfs filesystem usage /SDA
+    sudo btrfs filesystem usage /NVME0N1
     ```
 
 ## スナップショットの手動作成
@@ -152,27 +152,27 @@ Btrfs（B-tree File System）は、Linux 向けのコピーオンライト（CoW
 - 書き込み可能スナップショットの作成
 
     ```bash
-    sudo btrfs subvolume snapshot /SDA/samba \
-        /SDA/samba_snapshots/snap_$(date +"%Y-%m-%d_%H-%M-%S")
+    sudo btrfs subvolume snapshot /NVME0N1/samba \
+        /NVME0N1/samba_snapshots/snap_$(date +"%Y-%m-%d_%H-%M-%S")
     ```
 
 - 読み取り専用スナップショットの作成（バックアップ・世代管理に推奨）
 
     ```bash
-    sudo btrfs subvolume snapshot -r /SDA/samba \
-        /SDA/samba_snapshots/snap_$(date +"%Y-%m-%d_%H-%M-%S")
+    sudo btrfs subvolume snapshot -r /NVME0N1/samba \
+        /NVME0N1/samba_snapshots/snap_$(date +"%Y-%m-%d_%H-%M-%S")
     ```
 
 - スナップショットの一覧確認
 
     ```bash
-    sudo btrfs subvolume list /SDA
+    sudo btrfs subvolume list /NVME0N1
     ```
 
 - スナップショットの削除
 
     ```bash
-    sudo btrfs subvolume delete /SDA/samba_snapshots/<snapshot_name>
+    sudo btrfs subvolume delete /NVME0N1/samba_snapshots/<snapshot_name>
     ```
 
 ## スナップショット作成スクリプトと定期実行
@@ -180,8 +180,8 @@ Btrfs（B-tree File System）は、Linux 向けのコピーオンライト（CoW
 - スナップショット作成スクリプトの例 (ここでは、Samba 公開ディレクトリの例)
 
     ```bash title="snapshot_samba.sh"
-    BASE_DIR="/SDA/samba"
-    SNAPSHOT_DIR="/SDA/samba_snapshots"
+    BASE_DIR="/NVME0N1/samba"
+    SNAPSHOT_DIR="/NVME0N1/samba_snapshots"
     NUM_OF_HISTORIES=150
 
     if [ ! -d "${SNAPSHOT_DIR}" ]; then

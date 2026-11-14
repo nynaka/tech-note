@@ -162,7 +162,7 @@ sudo lynis audit system
 
     コンテナイメージ作成用の `Dockerfile` に対してベストプラクティスやセキュリティリスクの静的解析を行うこともできます。
 
-    ```bash title="Dockerfile の監査"
+    ```bash
     sudo lynis audit dockerfile /path/to/Dockerfile
     ```
 

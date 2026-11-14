@@ -3,15 +3,6 @@ Linux Mint
 
 ## 設定
 
-### 日本語入力
-
-```bash
-sudo apt install -y \
-    fcitx5 fcitx5-mozc fcitx5-frontend-gtk2 \
-    fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 \
-    fcitx5-frontend-qt5 kde-config-fcitx5
-```
-
 ### swappiness
 
 - swappiness の設定
@@ -38,6 +29,60 @@ sudo apt install -y \
     - **`0` より `1` を設定すべき理由**:
         - **`0`**: カーネル 3.5 以降では、空きメモリとキャッシュが完全に枯渇するまでスワップをほぼ完全に停止します。これによりキャッシュが過剰に破棄されてディスク I/O 性能が低下したり、メモリ不足時に OOM Killer が突発的に作動してプロセスが強制終了されるリスクが高まります。
         - **`1`**: 通常時はスワップアウトを極力回避しながらも、完全なメモリ枯渇時にはスワップを許可して OOM（Out of Memory）を回避する安全弁を残すことができます。そのため、スワップを最小限に抑えたい環境では `0` ではなく `1` を設定することが推奨されます。
+
+---
+
+### ハイバネート・スリープの制御
+
+- **無効化**
+
+    ```bash
+    sudo systemctl mask \
+        sleep.target \
+        suspend.target \
+        hibernate.target \
+        hybrid-sleep.target
+    ```
+
+- **状態確認**
+
+    ```bash
+    sudo systemctl status \
+        sleep.target \
+        suspend.target \
+        hibernate.target \
+        hybrid-sleep.target
+    ```
+
+- **有効化**
+
+    ```bash
+    sudo systemctl unmask \
+        sleep.target \
+        suspend.target \
+        hibernate.target \
+        hybrid-sleep.target
+    ```
+
+---
+
+### 日本語入力
+
+- インストール
+
+    ```bash
+    sudo apt install -y \
+        fcitx5 fcitx5-mozc fcitx5-frontend-gtk2 \
+        fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 \
+        fcitx5-frontend-qt5 kde-config-fcitx5
+    ```
+
+- 自動起動設定
+
+    ```bash
+    mkdir -p $HOME/.config/autostart
+    cp /usr/share/applications/org.fcitx.Fcitx5.desktop $HOME/.config/autostart/
+    ```
 
 ---
 
@@ -140,7 +185,6 @@ echo \
 sudo apt update
 sudo apt install -y code
 ```
-
 
 ---
 
